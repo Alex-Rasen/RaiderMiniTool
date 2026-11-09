@@ -15,11 +15,17 @@
 body{margin:0;background:linear-gradient(180deg,#101b2c 0,#0b1220 360px);color:var(--text);
 font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:0 0 calc(100px + env(safe-area-inset-bottom))}
 button,input{font:inherit}
+body.modal-open{overflow:hidden}
+button:disabled{opacity:.5;cursor:not-allowed}
 .app{max-width:980px;margin:auto;padding:18px 14px 30px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 2px 18px}
+header{flex-wrap:wrap;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 2px 18px}
 .brand{display:flex;align-items:center;gap:11px}
 .logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#69e0b0,#279b81);display:grid;place-items:center;color:#08251e;font-weight:900;font-size:20px}
 h1{font-size:20px;margin:0;letter-spacing:-.4px}
+.weekly-summary{flex:1 0 100%;padding:12px 15px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.weekly-summary strong{display:block;font-size:24px;color:var(--accent)}
+.incentive-list{display:grid;gap:10px;margin-top:12px}
+.incentive-card{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
 .subtitle{font-size:12px;color:var(--muted);margin-top:2px}
 .icon-btn,.secondary,.primary,.danger{border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);padding:10px 13px;cursor:pointer}
 .icon-btn{width:42px;height:42px;padding:0;font-size:19px}
@@ -56,7 +62,7 @@ tr:last-child td{border-bottom:0}
 .fab span{font-size:20px;vertical-align:-1px;margin-right:6px}
 .modal-backdrop{position:fixed;inset:0;background:#050a12c9;z-index:10;display:none;align-items:flex-end;justify-content:center;padding:14px}
 .modal-backdrop.open{display:flex}
-.modal{width:min(100%,480px);background:#142136;border:1px solid var(--line);border-radius:22px;padding:19px;box-shadow:var(--shadow);margin-bottom:env(safe-area-inset-bottom)}
+.modal{width:min(100%,480px);background:#142136;border:1px solid var(--line);border-radius:22px;padding:19px;box-shadow:var(--shadow);margin-bottom:env(safe-area-inset-bottom);max-height:calc(100dvh - 28px);overflow-y:auto;overscroll-behavior:contain}
 .modal h2{font-size:18px;margin:0 0 5px}
 .modal p{font-size:12px;color:var(--muted);margin:0 0 16px}
 .modal-actions{display:flex;gap:9px;margin-top:17px}
@@ -84,6 +90,12 @@ tr:last-child td{border-bottom:0}
  .settings-grid{gap:9px}
 }
 @media(min-width:621px){.modal-backdrop{align-items:center}.grid{gap:12px}}
+@media(max-width:620px),(hover:none) and (pointer:coarse){
+ .modal-backdrop{align-items:flex-start;top:var(--modal-viewport-top,0px);bottom:auto;height:var(--modal-viewport-height,100dvh);padding:calc(10px + env(safe-area-inset-top)) 10px 10px}
+ .modal{max-height:calc(var(--modal-available-height,50vh) - 20px - env(safe-area-inset-top));margin-bottom:0;padding:14px;border-radius:16px;scroll-padding:12px}
+ .modal input{font-size:16px}
+ .modal-actions{position:sticky;bottom:-14px;background:#142136;padding:10px 0;margin-top:7px}
+}
 </style>
 </head>
 <body>
@@ -91,17 +103,29 @@ tr:last-child td{border-bottom:0}
 <header>
  <div class="brand"><div class="logo">U</div><div><h1>Control de entregas</h1><div class="subtitle">Registro y rentabilidad de tu jornada</div></div></div>
  <div style="display:flex;gap:8px"><button class="icon-btn" id="createJourneyButton" aria-label="Nueva jornada">＋</button><button class="icon-btn" id="settingsToggle" aria-label="Configuración">⚙</button></div>
+ <div class="weekly-summary" aria-live="polite"><div class="metric-label">Ganancias de esta semana</div><strong id="weeklyIncome">$0</strong><div class="small" id="weeklyPeriod"></div><div class="small">Después de SII · Incluye propinas e incentivos · Sin descontar combustible</div></div>
 </header>
 
 <div class="section-title">Resumen en curso</div>
 <section class="grid" aria-live="polite">
  <div class="card"><div class="metric-label">Autonomía disponible</div><div class="metric-value green" id="autonomy">-- km</div><div class="metric-sub" id="fuelLeft">Combustible restante: -- L</div><div class="progress-wrap"><div class="progress" id="fuelProgress"></div></div></div>
- <div class="card"><div class="metric-label">Entregas realizadas</div><div class="metric-value" id="count">0</div><div class="metric-sub">Pedidos registrados</div></div>
- <div class="card"><div class="metric-label">Ganancia</div><div class="metric-value" id="grossGain">$0</div><div class="metric-sub">Tarifas + propinas</div></div>
- <div class="card"><div class="metric-label">Gastos combustible</div><div class="metric-value red" id="fuelCost">$0</div><div class="metric-sub" id="fuelBreakdown">Pedidos: $0 · Fuera: $0</div></div>
+ <div class="card"><div class="metric-label">Entregas realizadas</div><div class="metric-value" id="count">0</div><div class="metric-sub" id="requestCount">0 solicitudes registradas</div></div>
+ <div class="card"><div class="metric-label">Ganancia</div><div class="metric-value" id="grossGain">$0</div><div class="metric-sub">Tarifas + propinas + incentivos</div></div>
+ <div class="card"><div class="metric-label">Combustible consumido (estimado)</div><div class="metric-value red" id="fuelCost">$0</div><div class="metric-sub" id="fuelBreakdown">Pedidos: $0 · Fuera: $0</div></div>
  <div class="card"><div class="metric-label">Ganancia acumulada</div><div class="metric-value goal-main" id="goalValue">$0<span class="goal-target">/$0</span></div><div class="metric-sub" id="goalSub">Objetivo después de SII, combustible y propinas</div><div class="progress-wrap"><div class="progress" id="goalProgress"></div></div></div>
  <div class="card"><div class="metric-label">Kilómetros jornada <button class="secondary" id="updateOdometer" style="float:right;padding:3px 7px">↻</button></div><div class="metric-value blue" id="totalDistance">0,00 km</div><div class="metric-sub" id="distanceBreakdown">Pedidos: 0,00 · Fuera: 0,00 km</div></div>
  <div class="card"><div class="metric-label">Consumo real</div><div class="metric-value blue" id="consumption">-- km/L</div><div class="metric-sub" id="litersConsumed">Litros consumidos: --</div></div>
+</section>
+
+<section class="panel">
+ <div class="panel-head"><h2>Incentivos</h2><button class="secondary" id="addIncentiveButton">＋ Añadir incentivo</button></div>
+ <div id="incentiveList" class="incentive-list" aria-live="polite"></div>
+</section>
+
+<section class="panel">
+ <div class="panel-head"><h2>Cargas de combustible</h2><button class="secondary" id="addFuelButton">＋ Cargar combustible</button></div>
+ <div class="small" id="refuelSummary" style="margin-top:12px"></div>
+ <div class="small" id="refuelHistory" style="margin-top:8px"></div>
 </section>
 
 <section class="panel">
@@ -114,7 +138,7 @@ tr:last-child td{border-bottom:0}
  <div class="settings-grid">
   <label>Precio combustible (CLP/L)<input id="fuelPrice" type="number" min="0" step="1"></label>
   <label>Rendimiento (aproximación) (km/L)<input id="efficiency" type="number" min="0.1" step="0.1"></label>
-  <label>Litros de combustible cargados<input id="initialLiters" type="number" min="0" step="0.01"></label>
+  <label>Litros al inicio de la jornada<input id="initialLiters" type="number" min="0" step="0.01"></label>
   <label>Capacidad estanque (litros)<input id="tankCapacity" type="number" min="0.1" step="0.1"></label>
   <label>Retención SII (%)<input id="taxRate" type="number" min="0" max="100" step="0.01"></label>
  <label>Odómetro inicial predeterminado (km)<input id="odometer" type="number" min="0" step="0.01"></label>
@@ -133,7 +157,7 @@ tr:last-child td{border-bottom:0}
 <div class="section-title">Entregas registradas</div>
 <section class="panel" style="padding:8px 10px">
  <div class="desktop-table table-wrap">
-  <table><thead><tr><th>#</th><th>Hora</th><th>Distancia</th><th>Tarifa</th><th>Propina</th><th>Ret. SII</th><th>Ingreso</th><th>Combustible</th><th>Ganancia</th><th></th></tr></thead><tbody id="tableBody"></tbody></table>
+  <table><thead><tr><th>#</th><th>Hora</th><th>Entregas</th><th>Distancia</th><th>Tarifa</th><th>Propina</th><th>Ret. SII</th><th>Ingreso</th><th>Combustible</th><th>Ganancia</th><th></th></tr></thead><tbody id="tableBody"></tbody></table>
  </div>
  <div class="mobile-list" id="mobileList"></div>
  <div class="empty" id="emptyState">Todavía no hay entregas. Usa el botón + para registrar la primera.</div>
@@ -145,9 +169,10 @@ tr:last-child td{border-bottom:0}
 <button class="fab" id="addButton"><span>＋</span>Agregar entrega</button>
 <div class="modal-backdrop" id="modalBackdrop">
  <form class="modal" id="orderForm">
-  <h2>Nueva entrega</h2><p>Ingresa los dos datos del pedido. El resto se calcula automáticamente.</p>
+  <h2>Nueva entrega</h2><p>Ingresa los totales de la solicitud y cuántas entregas incluye. La cantidad no multiplica la tarifa ni la distancia.</p>
   <div class="settings-grid">
-   <label>Tarifa (CLP)<input id="fareInput" type="number" min="1" step="1" placeholder="Ej. 1972" required></label>
+   <label>Cantidad de entregas<input id="deliveryCountInput" type="number" min="1" step="1" inputmode="numeric" value="1" required></label>
+   <label>Tarifa total (CLP)<input id="fareInput" type="number" min="1" step="1" placeholder="Ej. 1972" required></label>
    <label>Distancia (km)<input id="distanceInput" type="number" min="0.01" step="0.01" placeholder="Ej. 7,26" required></label>
    <label>Propina exenta (CLP)<input id="tipInput" type="number" min="0" step="1" value="0" placeholder="Opcional"></label>
   </div>
@@ -155,9 +180,9 @@ tr:last-child td{border-bottom:0}
   <div class="modal-actions"><button type="button" class="secondary" id="cancelButton">Cancelar</button><button type="submit" class="primary">Guardar entrega</button></div>
 </form>
 </div>
-<div class="modal-backdrop" id="journeyModalBackdrop"><form class="modal" id="journeyForm"><h2>Nueva jornada</h2><p>Configura los parámetros iniciales de esta jornada.</p><div class="settings-grid">
+<div class="modal-backdrop" id="journeyModalBackdrop"><form class="modal" id="journeyForm"><h2>Nueva jornada</h2><p>Configura los parámetros iniciales. Los litros disponibles se proponen desde el combustible restante de la última jornada finalizada y puedes corregirlos.</p><div class="settings-grid">
  <label>Odómetro inicial (km)<input id="newStart" type="number" min="0" step="0.01" required></label>
- <label>Litros cargados<input id="newLiters" type="number" min="0" step="0.01" required></label>
+ <label>Litros disponibles<input id="newLiters" type="number" min="0" step="0.01" required></label>
  <label>Precio combustible (CLP/L)<input id="newFuelPrice" type="number" min="0" step="1" required></label>
  <label>Ganancia objetivo (CLP)<input id="newGoal" type="number" min="0" step="1" required></label>
  <label>Retención SII (%)<input id="newTaxRate" type="number" min="0" max="100" step="0.01" value="15.25" required></label>
@@ -167,12 +192,34 @@ tr:last-child td{border-bottom:0}
 <div class="modal-backdrop" id="finishModalBackdrop"><form class="modal" id="finishForm"><h2>Finalizar jornada</h2><p>Confirma el odómetro final para recalcular todos los indicadores.</p><label>Odómetro final (km)<input id="finishOdometer" type="number" min="0" step="0.01" required></label><div class="modal-actions"><button type="button" class="secondary" id="cancelFinishButton">Cancelar</button><button type="submit" class="primary">Finalizar jornada</button></div></form></div>
 <div class="modal-backdrop" id="odometerModalBackdrop"><form class="modal" id="odometerForm"><h2>Actualizar odómetro</h2><p>Ingresa la lectura actual del tablero de la motocicleta.</p><label>Odómetro actual (km)<input id="currentOdometer" type="number" min="0" step="0.01" required></label><div class="modal-actions"><button type="button" class="secondary" id="cancelOdometerButton">Cancelar</button><button type="submit" class="primary">Actualizar</button></div></form></div>
 <div class="modal-backdrop" id="historyModalBackdrop"><div class="modal"><h2 id="historyTitle">Resumen de jornada</h2><div class="grid" id="historyMetrics"></div><div class="modal-actions"><button type="button" class="primary" id="closeHistoryButton">Cerrar</button></div></div></div>
-<div class="toast" id="toast"></div>
+<div class="modal-backdrop" id="fuelModalBackdrop"><form class="modal" id="fuelForm" role="dialog" aria-modal="true" aria-labelledby="fuelTitle">
+ <h2 id="fuelTitle">Cargar combustible</h2><p>Registra la carga y el odómetro actual. El importe comprado se muestra separado del gasto por consumo estimado.</p>
+ <div class="settings-grid">
+  <label>Litros cargados (L)<input id="refuelLiters" type="number" min="0.01" step="0.01" inputmode="decimal" required></label>
+  <label>Precio (CLP/L)<input id="refuelPrice" type="number" min="0" step="1" inputmode="numeric" required></label>
+  <label>Odómetro actual (km)<input id="refuelOdometer" type="number" min="0" step="0.01" inputmode="decimal" required></label>
+ </div>
+ <div class="small red" id="refuelError" role="alert" style="margin-top:10px"></div>
+ <div class="small" id="refuelPreview" style="margin-top:10px" aria-live="polite"></div>
+ <div class="modal-actions"><button type="button" class="secondary" id="cancelFuelButton">Cancelar</button><button type="submit" class="primary">Guardar carga</button></div>
+</form></div>
+<div class="modal-backdrop" id="incentiveModalBackdrop"><form class="modal" id="incentiveForm" role="dialog" aria-modal="true" aria-labelledby="incentiveTitle">
+ <h2 id="incentiveTitle">Añadir incentivo</h2><p>Se cuentan las entregas entre ambas fechas, inclusive, en la hora local. Al completar la meta, el monto se suma automáticamente con la retención configurada.</p>
+ <div class="settings-grid">
+  <label>Cantidad de viajes / entregas<input id="incentiveTarget" type="number" min="1" step="1" inputmode="numeric" required></label>
+  <label>Monto del incentivo (CLP)<input id="incentiveAmount" type="number" min="1" step="1" inputmode="numeric" required></label>
+  <label>Fecha de inicio<input id="incentiveStart" type="date" required></label>
+  <label>Fecha de término<input id="incentiveEnd" type="date" required></label>
+ </div>
+ <div class="small red" id="incentiveError" role="alert" style="margin-top:10px"></div>
+ <div class="modal-actions"><button type="button" class="secondary" id="cancelIncentiveButton">Cancelar</button><button type="submit" class="primary">Guardar incentivo</button></div>
+</form></div>
+<div class="toast" id="toast" role="status"></div>
 
 <script>
 (() => {
  const KEY='uber_delivery_tracker_v2';
- const defaults={settings:{fuelPrice:1499,efficiency:28,initialLiters:3.34,tankCapacity:12,taxRate:15.25,odometer:877.2,goal:20000},orders:[],journeys:[],activeJourney:null};
+ const defaults={settings:{fuelPrice:1499,efficiency:28,initialLiters:3.34,tankCapacity:12,taxRate:15.25,odometer:877.2,goal:20000},orders:[],journeys:[],incentives:[],activeJourney:null};
  let state=load();
  let editingId=null;
  const $=id=>document.getElementById(id);
@@ -180,33 +227,119 @@ tr:last-child td{border-bottom:0}
  const number=n=>new Intl.NumberFormat('es-CL',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number.isFinite(n)?n:0);
  const dateLabel=d=>new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(d));
  const costPerKm=()=>state.settings.fuelPrice/state.settings.efficiency;
- function newJourney(start){return {id:Date.now().toString(36),start:Number(start)||0,end:null,startedAt:new Date().toISOString(),closedAt:null};}
+ function newJourney(start,settings=defaults.settings){return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),start:Number(start)||0,end:null,startedAt:new Date().toISOString(),closedAt:null,refuels:[],settings:{...settings}};}
+ function deliveryCount(o){return Number.isSafeInteger(o.deliveryCount)&&o.deliveryCount>0?o.deliveryCount:1;}
+ function localDateInput(date=new Date()){return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');}
+ function dateStart(value){
+  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;
+  const [year,month,day]=value.split('-').map(Number),date=new Date(0);
+  date.setFullYear(year,month-1,day);date.setHours(0,0,0,0);
+  return localDateInput(date)===value?date:null;
+ }
+ function incentiveRange(p){const start=dateStart(p.startDate),end=dateStart(p.endDate);if(!start||!end||end<start)return null;end.setDate(end.getDate()+1);return {start,end};}
  function migrate(v){
-  const s={...defaults,settings:{...defaults.settings,...(v.settings||{})},orders:Array.isArray(v.orders)?v.orders:[],journeys:Array.isArray(v.journeys)?v.journeys:[],activeJourney:v.activeJourney||null};
+  const s={...defaults,settings:{...defaults.settings,...(v.settings||{})},orders:Array.isArray(v.orders)?v.orders:[],journeys:Array.isArray(v.journeys)?v.journeys:[],activeJourney:v.activeJourney||null,incentives:Array.isArray(v.incentives)?v.incentives:[]};
   s.orders=s.orders.map(o=>({...o,tip:Number(o.tip)||0}));
-  if(!s.activeJourney){s.activeJourney=newJourney(s.settings.odometer);}
-  s.orders=s.orders.map(o=>({...o,journeyId:o.journeyId||s.activeJourney.id}));
+  if(!s.activeJourney){s.activeJourney=newJourney(s.settings.odometer,s.settings);}
+  const normalizeJourney=j=>({...j,settings:{...s.settings,...j.settings},refuels:(Array.isArray(j.refuels)?j.refuels:[]).filter(r=>r&&Number.isFinite(r.liters)&&r.liters>0&&Number.isFinite(r.price)&&r.price>=0&&Number.isFinite(r.odometer)&&typeof r.createdAt==='string'&&Number.isFinite(Date.parse(r.createdAt)))});
+  s.activeJourney=normalizeJourney(s.activeJourney);
+  s.journeys=s.journeys.map(normalizeJourney);
+  s.orders=s.orders.map(o=>{
+   const journeyId=o.journeyId||s.activeJourney.id,j=[s.activeJourney,...s.journeys].find(j=>j.id===journeyId);
+   return {...o,journeyId,deliveryCount:deliveryCount(o),taxRate:Number.isFinite(o.taxRate)&&o.taxRate>=0&&o.taxRate<=100?o.taxRate:(j?.settings.taxRate??s.settings.taxRate)};
+  });
+  s.incentives=s.incentives.filter(p=>p&&Number.isSafeInteger(p.target)&&p.target>0&&Number.isFinite(p.amount)&&p.amount>0&&incentiveRange(p)).map(p=>({...p,taxRate:Number.isFinite(p.taxRate)&&p.taxRate>=0&&p.taxRate<=100?p.taxRate:s.settings.taxRate}));
   return s;
  }
  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('uber_delivery_tracker_v1'));if(v&&typeof v==='object')return migrate(v);}catch(e){}return migrate(defaults);}
- function save(){localStorage.setItem(KEY,JSON.stringify(state));render();}
+ function save(){for(const j of [...state.journeys,active()]){if(j.closedAt)j.remainingLiters=calculateRemaining(j);}localStorage.setItem(KEY,JSON.stringify(state));render();}
  function active(){return state.activeJourney;}
- function calc(o){const tax=o.fare*state.settings.taxRate/100,subtotal=o.fare-tax,fuel=o.distance*costPerKm();return {tax,subtotal,fuel,tip:Number(o.tip)||0,profit:subtotal+(Number(o.tip)||0)-fuel};}
- function totals(){let distance=0,fare=0,tax=0,tips=0,gross=0;state.orders.filter(o=>o.journeyId===active().id).forEach(o=>{const c=calc(o);distance+=o.distance;fare+=o.fare;tax+=c.tax;tips+=c.tip;gross+=c.subtotal+c.tip;});const j=active(),total=j.end==null?null:Math.max(0,j.end-j.start),outside=total==null?null:total-distance;const liters=(total==null?distance:total)/state.settings.efficiency,fuel=liters*state.settings.fuelPrice;return {distance,fare,tax,fuel,tips,profit:gross-fuel,total,outside,liters};}
+ function loadedLiters(){return Number(state.settings.initialLiters)+active().refuels.reduce((sum,r)=>sum+r.liters,0);}
+ function journeySettings(j){return j?.closedAt?(j.settings||state.settings):state.settings;}
+ function calc(o){const j=o.journeyId===active().id?active():state.journeys.find(j=>j.id===o.journeyId),s=journeySettings(j),rate=o.taxRate??s.taxRate,tax=o.fare*rate/100,subtotal=o.fare-tax,fuel=o.distance*s.fuelPrice/s.efficiency;return {tax,subtotal,fuel,tip:Number(o.tip)||0,profit:subtotal+(Number(o.tip)||0)-fuel};}
+ function incentiveStatus(p,now=new Date()){
+  const range=incentiveRange(p);let completed=0,completion=null;
+  const orders=state.orders.filter(o=>{const date=new Date(o.createdAt);return date>=range.start&&date<range.end&&date<=now;}).sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
+  for(const o of orders){completed+=deliveryCount(o);if(!completion&&completed>=p.target)completion=o;}
+  return {promotion:p,completed,completion,percent:Math.min(100,completed/p.target*100),active:now>=range.start&&now<range.end,upcoming:now<range.start,net:p.amount*(1-p.taxRate/100)};
+ }
+ function incentiveStatuses(now=new Date()){return state.incentives.map(p=>incentiveStatus(p,now));}
+ function totals(j=active()){
+  let distance=0,fare=0,tax=0,tips=0,gross=0;
+  state.orders.filter(o=>o.journeyId===j.id).forEach(o=>{const c=calc(o);distance+=o.distance;fare+=o.fare;tax+=c.tax;tips+=c.tip;gross+=c.subtotal+c.tip;});
+  for(const reward of incentiveStatuses().filter(r=>r.completion?.journeyId===j.id)){fare+=reward.promotion.amount;tax+=reward.promotion.amount-reward.net;gross+=reward.net;}
+  const s=journeySettings(j),total=j.end==null?null:Math.max(distance,j.end-j.start+(Number.isFinite(j.orderDistanceAtReading)?Math.max(0,distance-j.orderDistanceAtReading):0)),outside=total==null?null:total-distance;
+  const liters=(total==null?distance:total)/s.efficiency,fuel=liters*s.fuelPrice;
+  return {distance,fare,tax,fuel,tips,profit:gross-fuel,total,outside,liters};
+ }
+ function calculateRemaining(j){
+  const s=journeySettings(j),loaded=Number(s.initialLiters)+j.refuels.reduce((sum,r)=>sum+r.liters,0);
+  return Math.max(0,loaded-totals(j).liters);
+ }
+ function remainingForJourney(j){return j.closedAt&&Number.isFinite(j.remainingLiters)?j.remainingLiters:calculateRemaining(j);}
+ function latestFinishedJourney(){return [...state.journeys,...(active().closedAt?[active()]:[])].filter(j=>j.closedAt).sort((a,b)=>new Date(b.closedAt)-new Date(a.closedAt))[0];}
+ function renderWeeklyAndIncentives(){
+  const now=new Date(),start=new Date(now);start.setHours(0,0,0,0);start.setDate(start.getDate()-(start.getDay()+6)%7);
+  const end=new Date(start);end.setDate(end.getDate()+7);const statuses=incentiveStatuses(now);
+  let income=state.orders.reduce((sum,o)=>{const date=new Date(o.createdAt);return date>=start&&date<end&&date<=now?sum+calc(o).subtotal+calc(o).tip:sum;},0);
+  for(const reward of statuses){if(reward.completion){const date=new Date(reward.completion.createdAt);if(date>=start&&date<end)income+=reward.net;}}
+  $('weeklyIncome').textContent=money(income);
+  const last=new Date(end);last.setDate(last.getDate()-1);const format=new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit'});
+  $('weeklyPeriod').textContent=format.format(start)+' – '+format.format(last)+' · Lunes a domingo';
+  $('incentiveList').replaceChildren();
+  if(!statuses.length){$('incentiveList').textContent='Todavía no hay incentivos. Añade una promoción para seguir su progreso.';return;}
+  for(const item of statuses){
+   const p=item.promotion,card=document.createElement('article');card.className='incentive-card';
+   const title=document.createElement('strong');title.textContent=money(p.amount)+' por '+p.target+' entregas';card.append(title);
+   const period=document.createElement('div');period.className='small';period.textContent=p.startDate+' → '+p.endDate;card.append(period);
+   const status=document.createElement('div');status.className=item.completion?'green':'small';status.textContent=item.completion?'Completado · '+money(item.net)+' después de SII, incluido en ganancias':item.upcoming?'Programado':item.active?'Activo':'Finalizado sin completar';card.append(status);
+   const progress=document.createElement('div');progress.className='metric-sub';progress.textContent=item.completed+' / '+p.target+' entregas · '+Math.floor(item.percent)+'%';card.append(progress);
+   const track=document.createElement('div');track.className='progress-wrap';track.setAttribute('role','progressbar');track.setAttribute('aria-label','Progreso del incentivo de '+money(p.amount));track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax',String(p.target));track.setAttribute('aria-valuenow',String(Math.min(item.completed,p.target)));
+   const bar=document.createElement('div');bar.className='progress';bar.style.width=item.percent+'%';track.append(bar);card.append(track);$('incentiveList').append(card);
+  }
+ }
  function recalibrateEfficiency(){
-  const j=active(),loaded=Number(state.settings.initialLiters)||0;
+  const j=active(),loaded=loadedLiters();
   if(j.end==null||loaded<=0)return false;
   const km=Math.max(0,j.end-j.start),estimated=km/state.settings.efficiency;
   if(estimated>=loaded&&km>0){state.settings.efficiency=km/loaded;return true;}
   return false;
  }
+ function todayJourney(){
+  const today=localDateInput();
+  if(localDateInput(new Date(active().startedAt))===today)return active();
+  return state.journeys.filter(j=>localDateInput(new Date(j.startedAt))===today).sort((a,b)=>new Date(b.startedAt)-new Date(a.startedAt))[0];
+ }
+ function renderJourneyActions(){
+  const closed=Boolean(active().closedAt),today=todayJourney(),button=$('createJourneyButton');
+  $('finishJourneyButton').disabled=closed;$('addButton').disabled=closed;$('updateOdometer').disabled=closed;
+  button.disabled=Boolean(today&&!today.closedAt);
+  const label=today?(today.closedAt?'Reanudar jornada':'Jornada en curso'):'Nueva jornada';
+  button.textContent=today?label:'＋';button.className=today?'secondary':'icon-btn';button.setAttribute('aria-label',label);button.title=label;
+ }
+ function resumeTodayJourney(){
+  const journey=todayJourney();if(!journey)return false;
+  if(!journey.closedAt){showToast('La jornada de hoy ya está en curso');return true;}
+  state.activeJourney=structuredClone(journey);state.settings={...state.settings,...journey.settings};
+  active().closedAt=null;delete active().remainingLiters;
+  state.journeys=state.journeys.filter(j=>j.id!==journey.id);
+  Object.entries(fields).forEach(([id,key])=>$(id).value=state.settings[key]);
+  save();showToast('Jornada de hoy reanudada');return true;
+ }
  function render(){
-  const s=state.settings,t=totals(),orders=state.orders.filter(o=>o.journeyId===active().id),count=orders.length,remainingLiters=Math.max(0,s.initialLiters-t.liters);
+  const s=state.settings,t=totals(),orders=state.orders.filter(o=>o.journeyId===active().id),count=orders.reduce((sum,o)=>sum+deliveryCount(o),0),remainingLiters=Math.max(0,loadedLiters()-t.liters);
   const remainingKm=remainingLiters*s.efficiency,initialKm=s.initialLiters*s.efficiency;
   $('autonomy').textContent=number(remainingKm)+' km';
   $('fuelLeft').textContent='Combustible restante: '+number(remainingLiters)+' L';
-  $('fuelProgress').style.width=(s.initialLiters>0?Math.max(0,Math.min(100,remainingLiters/s.initialLiters*100)):0)+'%';
+  $('fuelProgress').style.width=(s.tankCapacity>0?Math.max(0,Math.min(100,remainingLiters/s.tankCapacity*100)):0)+'%';
+  const refuels=active().refuels,refuelLiters=refuels.reduce((sum,r)=>sum+r.liters,0),refuelCost=refuels.reduce((sum,r)=>sum+r.liters*r.price,0);
+  $('addFuelButton').disabled=Boolean(active().closedAt);
+  $('refuelSummary').textContent=refuels.length+' cargas · '+number(refuelLiters)+' L · Comprado: '+money(refuelCost);
+  $('refuelHistory').textContent=refuels.length?refuels.map(r=>dateLabel(r.createdAt)+' · '+number(r.liters)+' L · '+money(r.liters*r.price)+' · '+number(r.odometer)+' km').join(' / '):(active().closedAt?'Jornada finalizada. Inicia una nueva para registrar cargas.':'Todavía no hay cargas durante esta jornada.');
+  renderJourneyActions();
   $('count').textContent=count;
+  $('requestCount').textContent=orders.length+' solicitudes registradas';
+  renderWeeklyAndIncentives();
   $('grossGain').textContent=money(t.fare+t.tips);
   $('fuelCost').textContent=money(t.fuel);
   const orderFuel=t.distance*costPerKm(),outsideFuel=Math.max(0,t.outside||0)*costPerKm();
@@ -220,29 +353,56 @@ tr:last-child td{border-bottom:0}
   $('derived').textContent='Costo por km: '+money(costPerKm())+' · Autonomía inicial: '+number(initialKm)+' km · Odómetro estimado: '+number(active().start+(t.total||t.distance))+' km';
   $('emptyState').style.display=count?'none':'block';
   const rows=orders.slice().reverse();
-  $('tableBody').innerHTML=rows.map((o,i)=>{const c=calc(o);return `<tr><td>${count-i}</td><td>${dateLabel(o.createdAt)}</td><td>${number(o.distance)} km</td><td>${money(o.fare)}</td><td class="green">${money(c.tip)}</td><td>${money(-c.tax)}</td><td>${money(c.subtotal+c.tip)}</td><td>${money(-c.fuel)}</td><td class="${c.profit>=0?'green':'red'}">${money(c.profit)}</td><td><button class="secondary" data-edit="${o.id}">Editar</button><button class="delete" data-delete="${o.id}" aria-label="Eliminar">×</button></td></tr>`}).join('');
-  $('mobileList').innerHTML=rows.map((o,i)=>{const c=calc(o);return `<article class="order-card"><div class="order-top"><div><span class="order-number">Entrega ${count-i}</span><div class="order-date">${dateLabel(o.createdAt)}</div></div><div><button class="secondary" data-edit="${o.id}">Editar</button><button class="secondary" data-duplicate="${o.id}">Duplicar</button><button class="delete" data-delete="${o.id}" aria-label="Eliminar entrega">×</button></div></div><div class="order-main"><div class="order-item"><span>Distancia</span><strong>${number(o.distance)} km</strong></div><div class="order-item"><span>Tarifa</span><strong>${money(o.fare)}</strong></div><div class="order-item"><span>Propina exenta</span><strong class="green">${money(c.tip)}</strong></div><div class="order-item"><span>Retención SII</span><strong>${money(-c.tax)}</strong></div><div class="order-item"><span>Ingreso</span><strong>${money(c.subtotal+c.tip)}</strong></div><div class="order-item"><span>Ganancia</span><strong class="${c.profit>=0?'green':'red'}">${money(c.profit)}</strong></div></div></article>`}).join('');
-  $('journeyHistory').innerHTML=state.journeys.length?state.journeys.slice().reverse().map(j=>{const os=state.orders.filter(o=>o.journeyId===j.id),km=j.end-j.start,gross=os.reduce((a,o)=>a+o.fare+(Number(o.tip)||0),0),tax=os.reduce((a,o)=>a+o.fare*s.taxRate/100,0),net=gross-tax-(km/s.efficiency*s.fuelPrice);return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)"><strong>${new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date(j.startedAt))}</strong><strong>${money(net)}</strong><button class="icon-btn" data-history="${j.id}" aria-label="Ver jornada">›</button></div>`}).join(''):'Todavía no hay jornadas cerradas.';
+  $('tableBody').innerHTML=rows.map((o,i)=>{const c=calc(o);return `<tr><td>${orders.length-i}</td><td>${dateLabel(o.createdAt)}</td><td>${deliveryCount(o)}</td><td>${number(o.distance)} km</td><td>${money(o.fare)}</td><td class="green">${money(c.tip)}</td><td>${money(-c.tax)}</td><td>${money(c.subtotal+c.tip)}</td><td>${money(-c.fuel)}</td><td class="${c.profit>=0?'green':'red'}">${money(c.profit)}</td><td><button class="secondary" data-edit="${o.id}">Editar</button><button class="delete" data-delete="${o.id}" aria-label="Eliminar">×</button></td></tr>`}).join('');
+  $('mobileList').innerHTML=rows.map((o,i)=>{const c=calc(o);return `<article class="order-card"><div class="order-top"><div><span class="order-number">Solicitud ${orders.length-i} · ${deliveryCount(o)} entregas</span><div class="order-date">${dateLabel(o.createdAt)}</div></div><div><button class="secondary" data-edit="${o.id}">Editar</button><button class="secondary" data-duplicate="${o.id}" ${active().closedAt?'disabled':''}>Duplicar</button><button class="delete" data-delete="${o.id}" aria-label="Eliminar entrega">×</button></div></div><div class="order-main"><div class="order-item"><span>Distancia</span><strong>${number(o.distance)} km</strong></div><div class="order-item"><span>Tarifa</span><strong>${money(o.fare)}</strong></div><div class="order-item"><span>Propina exenta</span><strong class="green">${money(c.tip)}</strong></div><div class="order-item"><span>Retención SII</span><strong>${money(-c.tax)}</strong></div><div class="order-item"><span>Ingreso</span><strong>${money(c.subtotal+c.tip)}</strong></div><div class="order-item"><span>Ganancia</span><strong class="${c.profit>=0?'green':'red'}">${money(c.profit)}</strong></div></div></article>`}).join('');
+  $('journeyHistory').innerHTML=state.journeys.length?state.journeys.slice().reverse().map(j=>{const net=totals(j).profit;return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)"><strong>${new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date(j.startedAt))}</strong><strong>${money(net)}</strong><button class="icon-btn" data-history="${j.id}" aria-label="Ver jornada">›</button></div>`}).join(''):'Todavía no hay jornadas cerradas.';
  }
  function showToast(msg){$('toast').textContent=msg;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2100);}
- function openModal(o=null){editingId=o?.id||null;$('modalBackdrop').classList.add('open');$('distanceInput').value=o?.distance||'';$('fareInput').value=o?.fare||'';$('tipInput').value=o?.tip||0;$('orderForm').querySelector('h2').textContent=editingId?'Editar entrega':'Nueva entrega';$('preview').textContent='Ingresa distancia, tarifa y propina para ver la ganancia estimada.';$('distanceInput').focus();}
+ function openModal(o=null){if(!o&&active().closedAt){showToast('Reanuda o inicia una jornada para agregar entregas');return;}editingId=o?.id||null;$('modalBackdrop').classList.add('open');$('distanceInput').value=o?.distance||'';$('fareInput').value=o?.fare||'';$('tipInput').value=o?.tip||0;$('deliveryCountInput').value=o?deliveryCount(o):1;$('orderForm').querySelector('h2').textContent=editingId?'Editar entrega':'Nueva entrega';$('preview').textContent='Ingresa distancia, tarifa y propina para ver la ganancia estimada.';$('distanceInput').focus();}
  function closeModal(){$('modalBackdrop').classList.remove('open');}
  $('addButton').onclick=()=>openModal();$('cancelButton').onclick=closeModal;
  $('modalBackdrop').addEventListener('click',e=>{if(e.target===$('modalBackdrop'))closeModal();});
- $('orderForm').addEventListener('submit',e=>{e.preventDefault();const distance=Number($('distanceInput').value),fare=Number($('fareInput').value),tip=Number($('tipInput').value)||0;if(!(distance>0)||!(fare>0)||tip<0){showToast('Ingresa valores válidos');return;}if(editingId){const o=state.orders.find(x=>x.id===editingId);if(o)Object.assign(o,{distance,fare,tip});}else state.orders.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),distance,fare,tip,createdAt:new Date().toISOString(),journeyId:active().id});save();closeModal();showToast(editingId?'Entrega actualizada':'Entrega guardada');editingId=null;});
- function updatePreview(){const d=Number($('distanceInput').value),f=Number($('fareInput').value),tip=Number($('tipInput').value)||0;if(d>0&&f>0){const c=calc({distance:d,fare:f,tip});$('preview').textContent=`Retención: ${money(c.tax)} · Propina exenta: ${money(tip)} · Combustible: ${money(c.fuel)} · Ganancia: ${money(c.profit)}`;}else $('preview').textContent='Ingresa distancia, tarifa y propina para ver la ganancia estimada.';}
+ $('orderForm').addEventListener('submit',e=>{e.preventDefault();if(!editingId&&active().closedAt){showToast('La jornada está finalizada');return;}const distance=Number($('distanceInput').value),fare=Number($('fareInput').value),tip=Number($('tipInput').value)||0,quantity=Number($('deliveryCountInput').value);if(!Number.isSafeInteger(quantity)||quantity<1||![distance,fare,tip].every(Number.isFinite)||!(distance>0)||!(fare>0)||tip<0){showToast('Ingresa valores válidos');return;}if(editingId){const o=state.orders.find(x=>x.id===editingId);if(o)Object.assign(o,{distance,fare,tip,deliveryCount:quantity});}else state.orders.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),distance,fare,tip,deliveryCount:quantity,taxRate:state.settings.taxRate,createdAt:new Date().toISOString(),journeyId:active().id});save();closeModal();showToast(editingId?'Entrega actualizada':'Entrega guardada');editingId=null;});
+ function updatePreview(){const d=Number($('distanceInput').value),f=Number($('fareInput').value),tip=Number($('tipInput').value)||0;if(d>0&&f>0){const original=editingId?state.orders.find(o=>o.id===editingId):null,c=calc({...original,distance:d,fare:f,tip});$('preview').textContent=`Retención: ${money(c.tax)} · Propina exenta: ${money(tip)} · Combustible: ${money(c.fuel)} · Ganancia: ${money(c.profit)}`;}else $('preview').textContent='Ingresa distancia, tarifa y propina para ver la ganancia estimada.';}
  $('distanceInput').addEventListener('input',updatePreview);$('fareInput').addEventListener('input',updatePreview);$('tipInput').addEventListener('input',updatePreview);
- $('createJourneyButton').onclick=()=>{const s=state.settings;[['newStart',active().end??active().start],['newLiters',s.initialLiters],['newFuelPrice',s.fuelPrice],['newGoal',s.goal],['newTaxRate',15.25],['newEfficiency',s.efficiency],['newTank',s.tankCapacity]].forEach(([id,v])=>$(id).value=v);$('journeyModalBackdrop').classList.add('open');};
+ function fuelReadingMinimum(){const j=active();return Math.max(j.start+(totals().total??totals().distance),j.end??j.start,...j.refuels.map(r=>r.odometer));}
+ function showFuelError(message){$('refuelError').textContent=message;$('fuelForm').scrollTop=$('fuelForm').scrollHeight;}
+ function updateFuelPreview(){
+  const liters=Number($('refuelLiters').value),price=Number($('refuelPrice').value),odometer=Number($('refuelOdometer').value);
+  const remaining=Math.max(0,loadedLiters()-Math.max(0,odometer-active().start)/state.settings.efficiency);
+  $('refuelPreview').textContent='Importe: '+money(liters*price)+' · Espacio estimado: '+number(Math.max(0,state.settings.tankCapacity-remaining))+' L';
+ }
+ $('addFuelButton').onclick=()=>{
+  if(active().closedAt){showToast('Inicia una nueva jornada para cargar combustible');return;}
+  $('fuelForm').reset();$('refuelError').textContent='';$('refuelPrice').value=state.settings.fuelPrice;
+  $('refuelOdometer').value=fuelReadingMinimum().toFixed(2);updateFuelPreview();
+  $('fuelModalBackdrop').classList.add('open');$('refuelLiters').focus({preventScroll:true});
+ };
+ $('cancelFuelButton').onclick=()=>$('fuelModalBackdrop').classList.remove('open');
+ $('fuelModalBackdrop').addEventListener('click',e=>{if(e.target===$('fuelModalBackdrop'))$('fuelModalBackdrop').classList.remove('open');});
+ ['refuelLiters','refuelPrice','refuelOdometer'].forEach(id=>$(id).addEventListener('input',updateFuelPreview));
+ $('fuelForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  if(active().closedAt){showFuelError('La jornada ya está finalizada');return;}
+  const liters=Number($('refuelLiters').value),price=Number($('refuelPrice').value),odometer=Number($('refuelOdometer').value);
+  if(!$('fuelForm').checkValidity()||![liters,price,odometer].every(Number.isFinite)||liters<=0||price<0||odometer+0.000001<fuelReadingMinimum()){showFuelError('Revisa litros, precio y odómetro; no puede retroceder');return;}
+  const remaining=Math.max(0,loadedLiters()-(odometer-active().start)/state.settings.efficiency);
+  if(remaining+liters>state.settings.tankCapacity+0.000001){showFuelError('La carga supera el espacio del estanque. Revisa los litros y el odómetro.');return;}
+  active().refuels.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),liters,price,odometer,createdAt:new Date().toISOString()});
+  active().orderDistanceAtReading=totals().distance;active().end=odometer;
+  save();$('fuelModalBackdrop').classList.remove('open');showToast('Carga de combustible registrada');
+ });
+ $('createJourneyButton').onclick=()=>{if(resumeTodayJourney())return;const s=state.settings,last=latestFinishedJourney();[['newStart',last?.end??fuelReadingMinimum()],['newLiters',Number(remainingForJourney(last||active()).toFixed(2))],['newFuelPrice',s.fuelPrice],['newGoal',s.goal],['newTaxRate',15.25],['newEfficiency',s.efficiency],['newTank',s.tankCapacity]].forEach(([id,v])=>$(id).value=v);$('journeyModalBackdrop').classList.add('open');};
  $('cancelJourneyButton').onclick=()=>$('journeyModalBackdrop').classList.remove('open');
- $('journeyForm').addEventListener('submit',e=>{e.preventDefault();const start=Number($('newStart').value);if(!Number.isFinite(start)||start<0){showToast('Odómetro inicial no válido');return;}state.settings={...state.settings,odometer:start,initialLiters:Number($('newLiters').value)||0,fuelPrice:Number($('newFuelPrice').value)||0,goal:Number($('newGoal').value)||0,taxRate:Number($('newTaxRate').value)||15.25,efficiency:Number($('newEfficiency').value)||28,tankCapacity:Number($('newTank').value)||12};state.activeJourney=newJourney(start);$('journeyModalBackdrop').classList.remove('open');save();showToast('Nueva jornada iniciada');});
- $('updateOdometer').onclick=()=>{$('currentOdometer').value=active().end||active().start+totals().distance;$('odometerModalBackdrop').classList.add('open');$('currentOdometer').focus();};
+ $('journeyForm').addEventListener('submit',e=>{e.preventDefault();if(todayJourney()){$('journeyModalBackdrop').classList.remove('open');resumeTodayJourney();return;}const start=Number($('newStart').value),liters=Number($('newLiters').value),tank=Number($('newTank').value);if(!Number.isFinite(start)||start<0||!Number.isFinite(liters)||liters<0||!Number.isFinite(tank)||tank<=0||liters>tank){showToast('Revisa el odómetro y los litros disponibles; no pueden superar el estanque');return;}state.settings={...state.settings,odometer:start,initialLiters:Number($('newLiters').value)||0,fuelPrice:Number($('newFuelPrice').value)||0,goal:Number($('newGoal').value)||0,taxRate:Number($('newTaxRate').value),efficiency:Number($('newEfficiency').value)||28,tankCapacity:Number($('newTank').value)||12};state.activeJourney=newJourney(start,state.settings);Object.entries(fields).forEach(([id,key])=>$(id).value=state.settings[key]);$('journeyModalBackdrop').classList.remove('open');save();showToast('Nueva jornada iniciada');});
+ $('updateOdometer').onclick=()=>{if(active().closedAt)return;$('currentOdometer').value=fuelReadingMinimum().toFixed(2);$('odometerModalBackdrop').classList.add('open');$('currentOdometer').focus();};
  $('cancelOdometerButton').onclick=()=>$('odometerModalBackdrop').classList.remove('open');
- $('odometerForm').addEventListener('submit',e=>{e.preventDefault();const v=Number($('currentOdometer').value),t=totals();if(!Number.isFinite(v)||v<active().start||v-active().start<t.distance){showToast('Odómetro no válido o menor que los km de pedidos');return;}active().end=v;active().closedAt=null;const adjusted=recalibrateEfficiency();$('odometerModalBackdrop').classList.remove('open');save();showToast(adjusted?'Odómetro actualizado y rendimiento recalculado':'Odómetro actualizado');});
- $('finishJourneyButton').onclick=()=>{$('finishOdometer').value=active().end||active().start+(totals().total||totals().distance);$('finishModalBackdrop').classList.add('open');};
+ $('odometerForm').addEventListener('submit',e=>{e.preventDefault();if(active().closedAt){showToast('Reanuda la jornada antes de actualizar el odómetro');return;}const v=Number($('currentOdometer').value),t=totals();if(!Number.isFinite(v)||v+0.000001<fuelReadingMinimum()){showToast('Odómetro no válido o menor que los km de pedidos');return;}active().orderDistanceAtReading=t.distance;active().end=v;active().closedAt=null;const adjusted=recalibrateEfficiency();$('odometerModalBackdrop').classList.remove('open');save();showToast(adjusted?'Odómetro actualizado y rendimiento recalculado':'Odómetro actualizado');});
+ $('finishJourneyButton').onclick=()=>{if(active().closedAt)return;$('finishOdometer').value=fuelReadingMinimum().toFixed(2);$('finishModalBackdrop').classList.add('open');};
  $('cancelFinishButton').onclick=()=>$('finishModalBackdrop').classList.remove('open');
- $('finishForm').addEventListener('submit',e=>{e.preventDefault();const end=Number($('finishOdometer').value),t=totals();if(!Number.isFinite(end)||end<active().start||end-active().start<t.distance){showToast('El odómetro final no es válido');return;}active().end=end;active().closedAt=new Date().toISOString();const adjusted=recalibrateEfficiency();state.journeys.push({...active()});$('finishModalBackdrop').classList.remove('open');save();showToast(adjusted?'Jornada finalizada y rendimiento recalculado':'Jornada finalizada');});
+ $('finishForm').addEventListener('submit',e=>{e.preventDefault();if(active().closedAt){$('finishModalBackdrop').classList.remove('open');return;}const end=Number($('finishOdometer').value),t=totals();if(!Number.isFinite(end)||end+0.000001<fuelReadingMinimum()){showToast('El odómetro final no es válido');return;}active().orderDistanceAtReading=t.distance;active().end=end;active().closedAt=new Date().toISOString();active().settings={...state.settings};const adjusted=recalibrateEfficiency();active().settings={...state.settings};active().remainingLiters=Math.max(0,loadedLiters()-totals().liters);state.journeys=state.journeys.filter(j=>j.id!==active().id);state.journeys.push(structuredClone(active()));$('finishModalBackdrop').classList.remove('open');save();showToast(adjusted?'Jornada finalizada y rendimiento recalculado':'Jornada finalizada');});
  $('closeHistoryButton').onclick=()=>$('historyModalBackdrop').classList.remove('open');
- document.addEventListener('click',e=>{const del=e.target.closest('[data-delete]'),dup=e.target.closest('[data-duplicate]'),edit=e.target.closest('[data-edit]'),hist=e.target.closest('[data-history]');if(del&&confirm('¿Eliminar esta entrega?')){state.orders=state.orders.filter(o=>o.id!==del.dataset.delete);save();showToast('Entrega eliminada');}if(dup){const o=state.orders.find(x=>x.id===dup.dataset.duplicate);if(o){state.orders.push({...o,id:Date.now().toString(36),createdAt:new Date().toISOString()});save();showToast('Entrega duplicada');}}if(edit){const o=state.orders.find(x=>x.id===edit.dataset.edit);if(o)openModal(o);}if(hist){const j=state.journeys.find(x=>x.id===hist.dataset.history);if(j){const old=state.activeJourney;state.activeJourney=j;const t=totals();$('historyTitle').textContent='Jornada del '+dateLabel(j.startedAt);$('historyMetrics').innerHTML=[['Ganancia',t.fare+t.tips],['Total neto',t.profit],['Kilómetros',t.total],['Fuera de pedido',t.outside],['Combustible',t.fuel],['Consumo',t.total/t.liters]].map(x=>`<div class="card"><div class="metric-label">${x[0]}</div><div class="metric-value">${typeof x[1]==='number'&&x[0].includes('Kilómetros')?number(x[1])+' km':x[0]==='Consumo'?number(x[1])+' km/L':money(x[1])}</div></div>`).join('');state.activeJourney=old;$('historyModalBackdrop').classList.add('open');}}});
+ document.addEventListener('click',e=>{const del=e.target.closest('[data-delete]'),dup=e.target.closest('[data-duplicate]'),edit=e.target.closest('[data-edit]'),hist=e.target.closest('[data-history]');if(del&&confirm('¿Eliminar esta entrega?')){state.orders=state.orders.filter(o=>o.id!==del.dataset.delete);save();showToast('Entrega eliminada');}if(dup&&active().closedAt){showToast('Reanuda o inicia una jornada para agregar entregas');return;}if(dup){const o=state.orders.find(x=>x.id===dup.dataset.duplicate);if(o){state.orders.push({...o,taxRate:state.settings.taxRate,id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),createdAt:new Date().toISOString()});save();showToast('Entrega duplicada');}}if(edit){const o=state.orders.find(x=>x.id===edit.dataset.edit);if(o)openModal(o);}if(hist){const j=state.journeys.find(x=>x.id===hist.dataset.history);if(j){const t=totals(j);$('historyTitle').textContent='Jornada del '+dateLabel(j.startedAt);$('historyMetrics').innerHTML=[['Ganancia',t.fare+t.tips],['Total neto',t.profit],['Kilómetros',t.total],['Fuera de pedido',t.outside],['Combustible consumido',t.fuel],['Cargas compradas',j.refuels.reduce((sum,r)=>sum+r.liters*r.price,0)],['Consumo',t.total/t.liters]].map(x=>`<div class="card"><div class="metric-label">${x[0]}</div><div class="metric-value">${typeof x[1]==='number'&&x[0].includes('Kilómetros')?number(x[1])+' km':x[0]==='Fuera de pedido'?number(x[1])+' kms':x[0]==='Consumo'?number(x[1])+' km/L':money(x[1])}</div></div>`).join('');$('historyModalBackdrop').classList.add('open');}}});
  const fields={fuelPrice:'fuelPrice',efficiency:'efficiency',initialLiters:'initialLiters',tankCapacity:'tankCapacity',taxRate:'taxRate',odometer:'odometer'};
  Object.entries(fields).forEach(([id,key])=>{const el=$(id);el.value=state.settings[key];el.addEventListener('change',()=>{const n=Number(el.value);if(!Number.isFinite(n)||n<0||(key==='efficiency'&&n<=0)||(key==='tankCapacity'&&n<=0)|| (key==='taxRate'&&n>100)){el.value=state.settings[key];showToast('Valor no válido');return;}state.settings[key]=n;if(key==='initialLiters'&&n>state.settings.tankCapacity){state.settings.initialLiters=state.settings.tankCapacity;el.value=state.settings.initialLiters;}save();showToast('Parámetro actualizado');});});
  $('settingsToggle').onclick=()=>{$('settingsModalBackdrop').classList.add('open');};
@@ -251,9 +411,48 @@ tr:last-child td{border-bottom:0}
  $('resetButton').onclick=()=>{if(confirm('Esto eliminará todas las entregas y restaurará los parámetros iniciales. ¿Continuar?')){state=migrate(structuredClone(defaults));Object.entries(fields).forEach(([id,key])=>$(id).value=state.settings[key]);save();showToast('Datos restablecidos');}};
  function download(name,content,type){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([content],{type}));a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);}
  $('exportJson').onclick=()=>download('respaldo-entregas-uber.json',JSON.stringify(state,null,2),'application/json');
- $('exportCsv').onclick=()=>{const head=['fecha','distancia_km','tarifa_clp','propina_exenta_clp','retencion_sii_clp','ingreso_clp','combustible_clp','ganancia_clp'];const lines=[head.join(';'),...state.orders.map(o=>{const c=calc(o);return [o.createdAt,o.distance,o.fare,c.tip.toFixed(2),c.tax.toFixed(2),(c.subtotal+c.tip).toFixed(2),c.fuel.toFixed(2),c.profit.toFixed(2)].join(';')})];download('entregas-uber.csv','\ufeff'+lines.join('\n'),'text/csv;charset=utf-8');};
+ $('exportCsv').onclick=()=>{const head=['fecha','distancia_km','tarifa_clp','propina_exenta_clp','retencion_sii_clp','ingreso_clp','combustible_clp','ganancia_clp','cantidad_entregas'];const lines=[head.join(';'),...state.orders.map(o=>{const c=calc(o);return [o.createdAt,o.distance,o.fare,c.tip.toFixed(2),c.tax.toFixed(2),(c.subtotal+c.tip).toFixed(2),c.fuel.toFixed(2),c.profit.toFixed(2),deliveryCount(o)].join(';')})];download('entregas-uber.csv','\ufeff'+lines.join('\n'),'text/csv;charset=utf-8');};
  $('importButton').onclick=()=>$('importFile').click();
  $('importFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const v=JSON.parse(await file.text());if(!v.settings||!Array.isArray(v.orders))throw Error();state=migrate(v);save();Object.entries(fields).forEach(([id,key])=>$(id).value=state.settings[key]);showToast('Respaldo importado');}catch(err){showToast('El archivo no es un respaldo válido');}e.target.value='';};
+ $('addIncentiveButton').onclick=()=>{
+  $('incentiveForm').reset();$('incentiveStart').value=localDateInput();$('incentiveEnd').value=localDateInput();$('incentiveError').textContent='';
+  $('incentiveModalBackdrop').classList.add('open');$('incentiveTarget').focus({preventScroll:true});
+ };
+ $('cancelIncentiveButton').onclick=()=>$('incentiveModalBackdrop').classList.remove('open');
+ $('incentiveModalBackdrop').addEventListener('click',e=>{if(e.target===$('incentiveModalBackdrop'))$('incentiveModalBackdrop').classList.remove('open');});
+ $('incentiveForm').addEventListener('submit',e=>{
+  e.preventDefault();const promotion={id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),target:Number($('incentiveTarget').value),amount:Number($('incentiveAmount').value),startDate:$('incentiveStart').value,endDate:$('incentiveEnd').value,taxRate:state.settings.taxRate};
+  if(!$('incentiveForm').checkValidity()||!Number.isSafeInteger(promotion.target)||promotion.target<1||!Number.isFinite(promotion.amount)||promotion.amount<=0||!incentiveRange(promotion)){
+   $('incentiveError').textContent='Ingresa una cantidad entera positiva, un monto válido y fechas en orden.';$('incentiveForm').scrollTop=$('incentiveForm').scrollHeight;return;
+  }
+  state.incentives.push(promotion);save();$('incentiveModalBackdrop').classList.remove('open');showToast('Incentivo guardado');
+ });
+ // Refresh date-bound summaries after midnight or when returning to the app.
+ setInterval(()=>{renderWeeklyAndIncentives();renderJourneyActions();},60000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
+ let modalBaseHeight=window.innerHeight,modalBaseWidth=window.innerWidth;
+ function syncModalViewport(){
+  const viewport=window.visualViewport,focused=document.activeElement?.matches('input,textarea,select');
+  if(!focused||window.innerWidth!==modalBaseWidth){modalBaseHeight=window.innerHeight;modalBaseWidth=window.innerWidth;}
+  const height=viewport?.height||window.innerHeight;
+  document.documentElement.style.setProperty('--modal-viewport-top',(viewport?.offsetTop||0)+'px');
+  document.documentElement.style.setProperty('--modal-viewport-height',height+'px');
+  document.documentElement.style.setProperty('--modal-available-height',Math.min(modalBaseHeight/2,height)+'px');
+  if(focused&&document.activeElement.closest('.modal-backdrop.open')){
+   const field=document.activeElement,modal=field.closest('.modal'),bounds=modal.getBoundingClientRect(),rect=field.getBoundingClientRect();
+   const actions=modal.querySelector('.modal-actions'),bottom=bounds.bottom-(actions?.offsetHeight||0)-12;
+   if(rect.bottom>bottom)modal.scrollTop+=rect.bottom-bottom;
+   else if(rect.top<bounds.top+12)modal.scrollTop-=bounds.top+12-rect.top;
+  }
+ }
+ document.querySelectorAll('.modal-backdrop').forEach(backdrop=>{
+  new MutationObserver(()=>{document.body.classList.toggle('modal-open',Boolean(document.querySelector('.modal-backdrop.open')));syncModalViewport();}).observe(backdrop,{attributes:true,attributeFilter:['class']});
+ });
+ window.addEventListener('resize',syncModalViewport);
+ window.visualViewport?.addEventListener('resize',syncModalViewport);
+ window.visualViewport?.addEventListener('scroll',syncModalViewport);
+ document.addEventListener('focusin',()=>requestAnimationFrame(syncModalViewport));
+ syncModalViewport();
  render();
 })();
 </script>
