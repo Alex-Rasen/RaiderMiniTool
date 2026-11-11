@@ -1,460 +1,2184 @@
 <!doctype html>
 <html lang="es">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#101827">
-<title>Control de entregas</title>
-<style>
-:root{
-  color-scheme:dark;--bg:#0b1220;--panel:#131e30;--panel2:#19263a;--line:#29384e;
-  --text:#edf3fb;--muted:#9aabc1;--accent:#62d6a5;--blue:#75b8ff;--red:#ff8d8d;
-  --shadow:0 12px 32px rgba(0,0,0,.24)
-}
-*{box-sizing:border-box}
-body{margin:0;background:linear-gradient(180deg,#101b2c 0,#0b1220 360px);color:var(--text);
-font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:0 0 calc(100px + env(safe-area-inset-bottom))}
-button,input{font:inherit}
-body.modal-open{overflow:hidden}
-button:disabled{opacity:.5;cursor:not-allowed}
-.app{max-width:980px;margin:auto;padding:18px 14px 30px}
-header{flex-wrap:wrap;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 2px 18px}
-.brand{display:flex;align-items:center;gap:11px}
-.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#69e0b0,#279b81);display:grid;place-items:center;color:#08251e;font-weight:900;font-size:20px}
-h1{font-size:20px;margin:0;letter-spacing:-.4px}
-.weekly-summary{flex:1 0 100%;padding:12px 15px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
-.weekly-summary strong{display:block;font-size:24px;color:var(--accent)}
-.incentive-list{display:grid;gap:10px;margin-top:12px}
-.incentive-card{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
-.subtitle{font-size:12px;color:var(--muted);margin-top:2px}
-.icon-btn,.secondary,.primary,.danger{border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);padding:10px 13px;cursor:pointer}
-.icon-btn{width:42px;height:42px;padding:0;font-size:19px}
-.section-title{font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin:20px 3px 10px}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.card{background:linear-gradient(145deg,var(--panel),#111b2b);border:1px solid var(--line);border-radius:17px;padding:14px;min-width:0;box-shadow:var(--shadow)}
-.metric-label{font-size:11px;color:var(--muted);font-weight:650;letter-spacing:.02em}
-.metric-value{font-size:clamp(18px,4.8vw,25px);font-weight:800;letter-spacing:-.7px;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.goal-main{color:var(--accent)}.goal-main .goal-target{color:var(--text);font-size:.62em;font-weight:600}
-.metric-sub{font-size:11px;color:var(--muted);margin-top:4px}
-.progress-wrap{margin-top:10px;height:6px;border-radius:10px;background:#26354a;overflow:hidden}
-.progress{height:100%;width:0;background:var(--accent);border-radius:10px;transition:width .2s}
-.green{color:var(--accent)}.blue{color:var(--blue)}.red{color:var(--red)}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:15px;margin-top:14px}
-.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.panel h2{font-size:15px;margin:0}
-.small{font-size:11px;color:var(--muted)}
-.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:14px}
-label{display:block;color:var(--muted);font-size:12px;font-weight:600}
-input{display:block;width:100%;margin-top:6px;padding:11px 10px;border-radius:10px;border:1px solid var(--line);background:#0c1523;color:var(--text);outline:none}
-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #62d6a51c}
-.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
-.secondary{font-size:12px;padding:9px 11px}
-.table-wrap{overflow-x:auto;margin:0 -2px}
-table{border-collapse:collapse;width:100%;min-width:630px;font-size:12px}
-th{text-align:right;color:var(--muted);font-weight:650;padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-th:first-child,td:first-child{text-align:left}
-td{text-align:right;padding:11px 8px;border-bottom:1px solid #233147;white-space:nowrap}
-tr:last-child td{border-bottom:0}
-.empty{text-align:center!important;color:var(--muted);padding:25px 8px}
-.delete{border:0;background:transparent;color:var(--red);font-size:17px;padding:2px 7px;cursor:pointer}
-.mobile-list{display:none}
-.fab{position:fixed;right:max(20px,calc((100vw - 940px)/2));bottom:max(20px,env(safe-area-inset-bottom));z-index:5;border:0;border-radius:999px;padding:15px 21px;background:var(--accent);color:#08251e;font-weight:850;box-shadow:0 8px 28px #0008;cursor:pointer}
-.fab span{font-size:20px;vertical-align:-1px;margin-right:6px}
-.modal-backdrop{position:fixed;inset:0;background:#050a12c9;z-index:10;display:none;align-items:flex-end;justify-content:center;padding:14px}
-.modal-backdrop.open{display:flex}
-.modal{width:min(100%,480px);background:#142136;border:1px solid var(--line);border-radius:22px;padding:19px;box-shadow:var(--shadow);margin-bottom:env(safe-area-inset-bottom);max-height:calc(100dvh - 28px);overflow-y:auto;overscroll-behavior:contain}
-.modal h2{font-size:18px;margin:0 0 5px}
-.modal p{font-size:12px;color:var(--muted);margin:0 0 16px}
-.modal-actions{display:flex;gap:9px;margin-top:17px}
-.modal-actions button{flex:1}
-.primary{background:var(--accent);color:#08251e;border-color:var(--accent);font-weight:800;padding:12px}
-.danger{color:var(--red)}
-.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#e9fff5;color:#0c382a;padding:10px 15px;border-radius:12px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;white-space:nowrap}
-.toast.show{opacity:1}
-.footer-note{text-align:center;color:var(--muted);font-size:11px;margin-top:16px}
-@media(max-width:620px){
- .app{padding:14px 12px 25px}
- .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
- .card{padding:12px;border-radius:15px}
- .metric-value{font-size:21px}
- .desktop-table{display:none}
- .mobile-list{display:grid;gap:9px}
- .order-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
- .order-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
- .order-number{font-weight:800;font-size:13px}
- .order-date{font-size:10px;color:var(--muted)}
- .order-main{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
- .order-item span{display:block;color:var(--muted);font-size:10px}
- .order-item strong{font-size:14px}
- .order-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin-top:10px;padding-top:9px}
- .settings-grid{gap:9px}
-}
-@media(min-width:621px){.modal-backdrop{align-items:center}.grid{gap:12px}}
-@media(max-width:620px),(hover:none) and (pointer:coarse){
- .modal-backdrop{align-items:flex-start;top:var(--modal-viewport-top,0px);bottom:auto;height:var(--modal-viewport-height,100dvh);padding:calc(10px + env(safe-area-inset-top)) 10px 10px}
- .modal{max-height:calc(var(--modal-available-height,50vh) - 20px - env(safe-area-inset-top));margin-bottom:0;padding:14px;border-radius:16px;scroll-padding:12px}
- .modal input{font-size:16px}
- .modal-actions{position:sticky;bottom:-14px;background:#142136;padding:10px 0;margin-top:7px}
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a0d29">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Control de entregas">
+  <link rel="manifest" href="manifest.json">
+  <title>Control de entregas</title>
+  <style>
+    /* Visual system adapted from References/styles.css: violet frame, dark shell,
+   slim navigation, asymmetric columns, gradient highlights and outlined icons. */
+    :root {
+      color-scheme: dark;
+      --bg: #160b23;
+      --panel: #211132;
+      --panel2: #2c1a40;
+      --line: #3d2b50;
+      --text: #f4effa;
+      --muted: #b6a8c8;
+      --accent: #c5acff;
+      --blue: #9ebeff;
+      --red: #ffaaa7;
+      --shadow: 0 8px 24px #09031036
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 24px
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(35deg, #7832b7, #bd71d3);
+      background-attachment: fixed;
+      color: var(--text);
+      font: 14px/1.5 'Open Sans', 'Segoe UI', system-ui, sans-serif;
+      padding: 32px 24px 110px
+    }
+
+    button,
+    input {
+      font: inherit
+    }
+
+    button,
+    a,
+    input {
+      -webkit-tap-highlight-color: transparent
+    }
+
+    button {
+      cursor: pointer
+    }
+
+    button:disabled {
+      opacity: .42;
+      cursor: not-allowed
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid #dac5ff;
+      outline-offset: 4px
+    }
+
+    body.modal-open {
+      overflow: hidden
+    }
+
+    .icon-sprite {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+      pointer-events: none
+    }
+
+    .icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      vertical-align: middle;
+      pointer-events: none
+    }
+
+    .skip-link {
+      position: fixed;
+      top: -80px;
+      left: 20px;
+      background: var(--text);
+      color: var(--bg);
+      padding: 12px;
+      z-index: 40
+    }
+
+    .skip-link:focus {
+      top: 12px
+    }
+
+    .app {
+      max-width: 1340px;
+      margin: auto;
+      border: 1px solid #ffffff16;
+      border-radius: 12px;
+      background: var(--bg);
+      box-shadow: 0 24px 70px #21053266
+    }
+
+    .app-header {
+      min-height: 86px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 30px;
+      border-bottom: 1px solid #ffffff09;
+      border-radius: 12px 12px 0 0;
+      background: #1b0e2c;
+      box-shadow: 0 5px 14px #10051d44
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0
+    }
+
+    .logo {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+      border-radius: 9px;
+      color: #fff;
+      background: linear-gradient(135deg, #747bff, #b64be7);
+      box-shadow: 0 4px 15px #9157ea44
+    }
+
+    .logo .icon {
+      width: 25px;
+      height: 25px
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 650;
+      letter-spacing: -.4px
+    }
+
+    .subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-shrink: 0
+    }
+
+    .dashboard-body {
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr)
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 18px;
+      height: calc(100vh - 36px);
+      padding: 36px 10px;
+      border-right: 1px solid #ffffff08;
+      background: #1a0d29;
+      border-radius: 0 0 0 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      z-index: 8
+    }
+
+    .nav-link {
+      width: 48px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+      border-radius: 10px;
+      color: #b6a6ca;
+      text-decoration: none;
+      transition: background .15s, color .15s
+    }
+
+    .nav-link span {
+      font-size: 8px;
+      letter-spacing: .2px
+    }
+
+    .nav-link:hover,
+    .nav-link[aria-current] {
+      color: #f4eaff;
+      background: #422460
+    }
+
+    .nav-link:first-child {
+      color: #d7bbff;
+      background: #42246088
+    }
+
+    .workspace {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: minmax(220px, .8fr) minmax(0, 2fr);
+      gap: 34px;
+      padding: 38px 34px 26px;
+      background: radial-gradient(ellipse at 15% 0, #58306642, transparent 50%), linear-gradient(130deg, #1a0c29, #160b23 60%);
+      border-radius: 0 0 12px 0
+    }
+
+    .overview,
+    .operations {
+      min-width: 0
+    }
+
+    .operations {
+      max-height: calc(90vh - 124px);
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      scrollbar-color: #6f458f transparent;
+      padding: 0 10px 120px 0
+    }
+
+    .overview-intro {
+      padding: 6px 0 28px
+    }
+
+    .eyebrow {
+      font-size: 9px;
+      letter-spacing: 2.4px;
+      color: #bca3d5
+    }
+
+    .overview-intro h2 {
+      position: relative;
+      font-size: 32px;
+      line-height: 1.25;
+      font-weight: 350;
+      letter-spacing: -1px;
+      margin: 18px 0 12px;
+      padding-left: 52px
+    }
+
+    .intro-icon {
+      position: absolute;
+      left: 0;
+      top: 4px;
+      padding: 10px;
+      box-sizing: content-box;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #8174f4, #a839d6);
+      color: white;
+      box-shadow: 0 5px 18px #9345d62e
+    }
+
+    .overview-intro p {
+      color: var(--muted);
+      font-size: 12px;
+      max-width: 245px
+    }
+
+    .session-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #d1bbea;
+      font-size: 10px;
+      margin-top: 8px
+    }
+
+    .session-badge .icon {
+      width: 15px;
+      height: 15px
+    }
+
+    .weekly-summary {
+      position: relative;
+      padding: 22px 20px;
+      border: 1px solid #70529b66;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #352052, #211333);
+      box-shadow: var(--shadow)
+    }
+
+    .weekly-summary .metric-label {
+      font-size: 11px;
+      align-items: center;
+      line-height: 1.5;
+      gap: 8px
+    }
+
+    .weekly-summary strong {
+      display: block;
+      font-size: 32px;
+      letter-spacing: -1px;
+      font-weight: 700;
+      color: #f2eaff;
+      margin: 13px 0 10px
+    }
+
+    .weekly-summary .small {
+      font-size: 10px;
+      line-height: 1.7
+    }
+
+    .weekly-summary #weeklyPeriod {
+      color: #cfb5ec;
+      margin-bottom: 7px
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      line-height: 1.5;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 2.2px;
+      color: #bfaed2;
+      margin: 4px 0 18px
+    }
+
+    .section-title .icon {
+      width: 16px;
+      height: 16px
+    }
+
+    #deliveriesSection {
+      margin-top: 30px
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px
+    }
+
+    .card {
+      position: relative;
+      min-width: 0;
+      padding: 18px 15px;
+      border: 1px solid #ffffff0b;
+      background: var(--panel);
+      border-radius: 10px;
+      box-shadow: var(--shadow)
+    }
+
+    .summary-grid>.card:nth-child(1) {
+      background: linear-gradient(135deg, #8e4b32, #ad5d39);
+      border-color: #e79a6055
+    }
+
+    .summary-grid>.card:nth-child(2) {
+      background: linear-gradient(135deg, #64429b, #784fc3);
+      border-color: #b68eff55
+    }
+
+    .summary-grid>.card:nth-child(3) {
+      background: linear-gradient(135deg, #394c97, #4a61b4);
+      border-color: #90a4ff55
+    }
+
+    .summary-grid>.card:nth-child(-n+3) .metric-label,
+    .summary-grid>.card:nth-child(-n+3) .metric-sub {
+      color: #f0e6fc
+    }
+
+    .summary-grid>.card:nth-child(-n+3) .metric-value {
+      color: white
+    }
+
+    .summary-grid>.card:last-child {
+      grid-column: span 1
+    }
+
+    .metric-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      min-height: 32px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 1.5
+    }
+
+    .metric-icon {
+      width: 16px;
+      height: 16px
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 650;
+      letter-spacing: -.7px;
+      margin-top: 8px;
+      overflow-wrap: anywhere;
+      line-height: 1.3
+    }
+
+    .metric-sub {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.6
+    }
+
+    .goal-main .goal-target {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 400;
+      margin-top: 4px
+    }
+
+    .green,
+    .goal-main {
+      color: #ceafff
+    }
+
+    .blue {
+      color: var(--blue)
+    }
+
+    .red {
+      color: var(--red)
+    }
+
+    .progress-wrap {
+      height: 5px;
+      border-radius: 8px;
+      background: #ffffff15;
+      overflow: hidden;
+      margin-top: 13px
+    }
+
+    .progress {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #f87171 0%, #facc15 50%, #4ade80 100%);
+      background-size: var(--progress-scale, 100%) 100%;
+      background-repeat: no-repeat;
+      min-width: 3px;
+      border-radius: 8px;
+      transition: width .2s
+    }
+
+    #fuelProgress.is-reserve {
+      background: #f87171
+    }
+
+    .weekly-deliveries {
+      margin: 18px 0 0;
+      padding: 18px 14px;
+      border: 1px solid #70529b66;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #352052, #211333);
+      box-shadow: var(--shadow)
+    }
+
+    .weekly-bars {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 16px
+    }
+
+    .weekly-day {
+      min-width: 0;
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted)
+    }
+
+    .weekly-day strong {
+      display: block;
+      color: #f2eaff;
+      font-size: 11px;
+      margin-bottom: 6px
+    }
+
+    .weekly-bar-track {
+      height: 90px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      border-bottom: 1px solid #ffffff25;
+      margin-bottom: 8px;
+      background: repeating-linear-gradient(to top, transparent 0 29px, #ffffff08 29px 30px)
+    }
+
+    .weekly-bar {
+      width: 70%;
+      max-width: 24px;
+      border-radius: 4px 4px 0 0;
+      background: linear-gradient(0deg, #8955cd, #d0acff)
+    }
+
+    .panel {
+      padding: 20px;
+      margin-top: 22px;
+      background: var(--panel);
+      border: 1px solid #ffffff08;
+      border-radius: 10px;
+      box-shadow: var(--shadow)
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap
+    }
+
+    .panel h2 {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      margin: 0;
+      color: #e2d3f1
+    }
+
+    .panel h2 .icon {
+      width: 18px;
+      height: 18px;
+      color: #c1a0ec
+    }
+
+    .small {
+      font-size: 11px;
+      color: var(--muted)
+    }
+
+    .history-panel {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      padding: 0;
+      margin-top: 38px
+    }
+
+    .history-panel .panel-head {
+      display: block
+    }
+
+    .history-panel .panel-head .small {
+      display: block;
+      margin: 7px 0 24px
+    }
+
+    .history-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 5px 10px;
+      align-items: center;
+      border-left: 1px solid #75548e66;
+      padding: 0 0 22px 17px;
+      margin-left: 4px
+    }
+
+    .history-row:before {
+      content: '';
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      left: -3px;
+      top: 6px;
+      background: #a587ed
+    }
+
+    .history-row strong {
+      font-size: 12px;
+      font-weight: 400
+    }
+
+    .history-row strong:nth-child(2) {
+      grid-column: 1;
+      color: #bba4d0
+    }
+
+    .history-row button {
+      grid-column: 2;
+      grid-row: 1/3
+    }
+
+    .icon-btn,
+    .secondary,
+    .primary,
+    .danger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel2);
+      color: var(--text);
+      padding: 10px 13px;
+      min-height: 40px;
+      transition: background .15s, border-color .15s
+    }
+
+    .icon-btn {
+      width: 40px;
+      flex-shrink: 0;
+      padding: 9px
+    }
+
+    .secondary {
+      font-size: 11px;
+      padding: 8px 11px
+    }
+
+    .primary {
+      border: 0;
+      background: linear-gradient(120deg, #596fe0, #9185f1);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 650;
+      padding: 12px 16px
+    }
+
+    .danger {
+      color: var(--red)
+    }
+
+    button:not(:disabled):hover {
+      filter: brightness(1.13)
+    }
+
+    .secondary .icon {
+      width: 15px;
+      height: 15px
+    }
+
+    .delete {
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      background: transparent;
+      color: var(--red);
+      min-width: 32px;
+      min-height: 36px;
+      padding: 5px
+    }
+
+    .delete .icon {
+      width: 17px;
+      height: 17px
+    }
+
+    #updateOdometer {
+      min-width: 28px;
+      min-height: 28px;
+      padding: 4px;
+      margin-left: auto
+    }
+
+    .incentive-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 17px
+    }
+
+    .incentive-card {
+      position: relative;
+      padding: 17px 17px 17px 57px;
+      border-radius: 8px;
+      border: 1px solid #8561ac33;
+      background: linear-gradient(120deg, #34204d, #2a193e)
+    }
+
+    .incentive-card strong {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .incentive-card>.green,
+    .incentive-card>.small {
+      font-size: 11px;
+      line-height: 1.6
+    }
+
+    .incentive-icon {
+      position: absolute;
+      left: 15px;
+      top: 18px;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      background: #aa5cd32b;
+      border-radius: 9px;
+      color: #d598f3
+    }
+
+    .incentive-icon .icon {
+      width: 19px;
+      height: 19px
+    }
+
+    #refuelHistory {
+      line-height: 1.8;
+      overflow-wrap: anywhere
+    }
+
+    #refuelSummary {
+      color: #cdb7e2
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      max-width: 100%;
+      scrollbar-color: #6f458f #211132
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 780px;
+      font-size: 11px
+    }
+
+    th {
+      text-align: right;
+      color: #b49ec9;
+      font-weight: 500;
+      padding: 12px 8px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap
+    }
+
+    td {
+      text-align: right;
+      padding: 14px 8px;
+      border-bottom: 1px solid #ffffff08;
+      white-space: nowrap
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left
+    }
+
+    tr:last-child td {
+      border-bottom: 0
+    }
+
+    .deliveries-panel {
+      padding: 8px 12px
+    }
+
+    .empty {
+      text-align: center !important;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 30px 12px
+    }
+
+    .mobile-list {
+      display: none
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 18px
+    }
+
+    .footer-note {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.6;
+      text-align: center;
+      margin-top: 24px
+    }
+
+    .footer-note .icon {
+      width: 16px;
+      height: 16px
+    }
+
+    .fab {
+      position: fixed;
+      right: max(26px, calc((100vw - 1280px)/2));
+      bottom: max(24px, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 50px;
+      padding: 14px 22px;
+      z-index: 5;
+      border: 1px solid #c6b5ff44;
+      border-radius: 12px;
+      background: linear-gradient(120deg, #6477ee, #9a78dc);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 650;
+      box-shadow: 0 8px 32px #10022177
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px
+    }
+
+    label {
+      display: block;
+      color: #c7b7d8;
+      font-size: 12px;
+      font-weight: 500
+    }
+
+    input {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid #4e3565;
+      background: #170b25;
+      padding: 11px 10px;
+      color: var(--text);
+      outline: none
+    }
+
+    input:focus {
+      border-color: #c3a1ff;
+      box-shadow: 0 0 0 3px #af79ff20
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: #0c0416ce;
+      padding: 14px
+    }
+
+    .modal-backdrop.open {
+      display: flex
+    }
+
+    .modal {
+      width: min(100%, 480px);
+      max-height: calc(100dvh - 28px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-color: #765294 #29153e;
+      background: #29153e;
+      border: 1px solid #65417f;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 16px 60px #0008;
+      margin-bottom: env(safe-area-inset-bottom)
+    }
+
+    .modal h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 7px
+    }
+
+    .modal p {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin: 0 0 15px
+    }
+
+    .modal .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 9px;
+      margin-top: 18px
+    }
+
+    .modal-actions button {
+      flex: 1
+    }
+
+    .modal-actions .primary {
+      font-size: 13px
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 90px;
+      transform: translateX(-50%);
+      z-index: 20;
+      max-width: calc(100vw - 28px);
+      border: 1px solid #d4b5ff55;
+      border-radius: 10px;
+      background: #eadcff;
+      color: #301346;
+      padding: 11px 16px;
+      font-size: 12px;
+      text-align: center;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s
+    }
+
+    .toast.show {
+      opacity: 1
+    }
+
+    @media(min-width:1100px) {
+      .summary-grid>.card:nth-child(5) {
+        grid-column: span 2
+      }
+
+      .summary-grid>.card:nth-child(5) .goal-target {
+        display: inline;
+        margin-left: 6px
+      }
+
+      .operations>.section-title:first-child {
+        margin-bottom: 22px
+      }
+    }
+
+    @media(max-width:1099px) {
+      body {
+        padding: 20px 14px 100px
+      }
+
+      .workspace {
+        gap: 22px;
+        padding: 28px 22px;
+        grid-template-columns: 210px minmax(0, 1fr)
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .overview-intro h2 {
+        font-size: 27px;
+        padding-left: 0;
+        padding-top: 55px
+      }
+
+      .intro-icon {
+        top: 0
+      }
+
+      .metric-value {
+        font-size: 23px
+      }
+
+      .panel {
+        padding: 16px
+      }
+    }
+
+    @media(max-width:800px) {
+      body {
+        padding: 12px 10px 100px
+      }
+
+      .app-header {
+        padding: 18px;
+        flex-wrap: wrap
+      }
+
+      .dashboard-body {
+        grid-template-columns: 1fr
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 10px;
+        height: auto;
+        border-radius: 10px;
+        padding: 7px 12px;
+        flex-direction: row;
+        justify-content: space-around;
+        gap: 4px;
+        border-right: 0;
+        border-bottom: 1px solid #ffffff0b
+      }
+
+      .nav-link {
+        width: auto;
+        flex: 1;
+        min-height: 48px
+      }
+
+      .nav-link span {
+        font-size: 9px
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        scroll-behavior: smooth;
+        scrollbar-color: #6f458f transparent;
+        padding: 24px 20px;
+        gap: 28px
+      }
+
+      .operations {
+        max-height: none;
+        overflow: visible;
+        padding: 0;
+        scroll-behavior: auto
+      }
+
+      .overview {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px
+      }
+
+      .overview-intro {
+        padding: 0
+      }
+
+      .overview-intro h2 {
+        font-size: 28px;
+        padding: 0 0 0 50px;
+        margin: 12px 0
+      }
+
+      .intro-icon {
+        top: 0
+      }
+
+      .overview-intro p {
+        font-size: 11px
+      }
+
+      .eyebrow {
+        font-size: 8px
+      }
+
+      .weekly-summary {
+        align-self: start
+      }
+
+      .weekly-summary strong {
+        font-size: 28px
+      }
+
+      .history-panel {
+        grid-column: 1/-1;
+        margin: 0
+      }
+
+      .history-panel .panel-head .small {
+        margin-bottom: 14px
+      }
+
+      #journeyHistory {
+        max-height: 190px;
+        overflow-y: auto
+      }
+
+      .history-row {
+        padding-bottom: 14px
+      }
+
+      .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr))
+      }
+
+      .metric-value {
+        font-size: 23px
+      }
+    }
+
+    @media(max-width:620px) {
+      body {
+        padding: 8px 7px 100px
+      }
+
+      .app-header {
+        gap: 14px;
+        padding: 17px 15px
+      }
+
+      h1 {
+        font-size: 17px
+      }
+
+      .subtitle {
+        font-size: 10px
+      }
+
+      .header-actions {
+        width: 30%;
+        justify-content: flex-end
+      }
+
+      .header-actions #createJourneyButton span {
+        display: none
+      }
+
+      .header-actions #createJourneyButton {
+        width: 40px;
+        padding: 9px
+      }
+
+      .logo {
+        width: 37px;
+        height: 37px
+      }
+
+      .workspace {
+        padding: 22px 15px;
+        gap: 28px
+      }
+
+      .overview {
+        grid-template-columns: 1fr;
+        gap: 20px
+      }
+
+      .overview-intro h2 {
+        font-size: 30px
+      }
+
+      .overview-intro h2 br {
+        display: none
+      }
+
+      .overview-intro p {
+        max-width: none;
+        margin-bottom: 7px
+      }
+
+      .session-badge {
+        margin: 0
+      }
+
+      .weekly-summary {
+        padding: 18px
+      }
+
+      .weekly-summary strong {
+        font-size: 31px;
+        margin: 8px 0
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px
+      }
+
+      .card {
+        padding: 15px 12px
+      }
+
+      .metric-value {
+        font-size: 24px
+      }
+
+      .metric-label {
+        font-size: 10px
+      }
+
+      .metric-sub {
+        font-size: 10px
+      }
+
+      .summary-grid>.card:last-child {
+        grid-column: 1/-1
+      }
+
+      .panel {
+        padding: 16px 13px
+      }
+
+      .panel-head {
+        gap: 10px
+      }
+
+      .panel h2 {
+        font-size: 13px
+      }
+
+      .panel-head .secondary {
+        min-height: 40px
+      }
+
+      .section-title {
+        letter-spacing: 1.6px
+      }
+
+      .desktop-table {
+        display: none
+      }
+
+      .mobile-list {
+        display: grid;
+        gap: 12px;
+        padding: 5px 0
+      }
+
+      .order-card {
+        border: 1px solid #69437e44;
+        background: #28163b;
+        border-radius: 10px;
+        padding: 13px
+      }
+
+      .order-top {
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: nowrap;
+        margin-bottom: 14px
+      }
+
+      .order-top>div:first-child {
+        min-width: 0;
+        flex: 1
+      }
+
+      .order-number {
+        font-size: 12px;
+        font-weight: 600
+      }
+
+      .order-date {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 4px
+      }
+
+      .order-top>div:last-child {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        flex-shrink: 0
+      }
+
+      .order-top button.secondary {
+        width: 34px;
+        min-width: 34px;
+        height: 34px;
+        padding: 8px
+      }
+
+      .order-top button.secondary span {
+        display: none
+      }
+
+      .order-main {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px 8px
+      }
+
+      .order-item span {
+        display: block;
+        font-size: 10px;
+        color: var(--muted);
+        margin-bottom: 3px
+      }
+
+      .order-item strong {
+        font-size: 14px
+      }
+
+      .deliveries-panel {
+        padding: 8px
+      }
+
+      .incentive-card {
+        padding: 14px 12px 14px 50px
+      }
+
+      .incentive-icon {
+        left: 11px;
+        top: 14px
+      }
+
+      .fab {
+        right: 18px;
+        bottom: max(18px, env(safe-area-inset-bottom));
+        min-height: 50px;
+        padding: 13px 19px
+      }
+
+      .footer-note {
+        font-size: 9px
+      }
+    }
+
+    @media(max-width:620px), (hover:none) and (pointer:coarse) {
+      .modal-backdrop {
+        align-items: flex-start;
+        top: var(--modal-viewport-top, 0px);
+        bottom: auto;
+        height: var(--modal-viewport-height, 100dvh);
+        padding: calc(10px + env(safe-area-inset-top)) 10px 10px
+      }
+
+      .modal {
+        max-height: calc(var(--modal-available-height, 50vh) - 20px - env(safe-area-inset-top));
+        margin-bottom: 0;
+        padding: 14px;
+        border-radius: 12px;
+        scroll-padding: 12px
+      }
+
+      .modal input {
+        font-size: 16px
+      }
+
+      .modal-actions {
+        position: sticky;
+        bottom: -14px;
+        background: #29153e;
+        padding: 10px 0;
+        margin-top: 7px
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      html {
+        scroll-behavior: auto
+      }
+
+      .progress,
+      .toast,
+      .nav-link,
+      button {
+        transition: none
+      }
+    }
+
+    @media(min-width:801px) {
+      body {
+        padding: 20px 24px 20px
+      }
+
+      .app {
+        height: calc(100vh - 40px);
+        overflow: hidden
+      }
+
+      .dashboard-body,
+      .workspace {
+        min-height: 0;
+        overflow: hidden
+      }
+
+      .sidebar {
+        height: calc(100vh - 40px);
+        max-height: calc(100vh - 40px);
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-color: #6f458f transparent
+      }
+
+      .overview {
+        height: 70vh;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+        scrollbar-color: #6f458f transparent;
+        padding: 20px
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div class="app">
-<header>
- <div class="brand"><div class="logo">U</div><div><h1>Control de entregas</h1><div class="subtitle">Registro y rentabilidad de tu jornada</div></div></div>
- <div style="display:flex;gap:8px"><button class="icon-btn" id="createJourneyButton" aria-label="Nueva jornada">＋</button><button class="icon-btn" id="settingsToggle" aria-label="Configuración">⚙</button></div>
- <div class="weekly-summary" aria-live="polite"><div class="metric-label">Ganancias de esta semana</div><strong id="weeklyIncome">$0</strong><div class="small" id="weeklyPeriod"></div><div class="small">Después de SII · Incluye propinas e incentivos · Sin descontar combustible</div></div>
-</header>
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true">
+    <defs>
+      <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" />
+      </symbol>
+      <symbol id="icon-package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 3 9 5-9 5-9-5 9-5Zm-9 5v10l9 5 9-5V8M12 13v10M7.5 5.5l9 5V15" />
+      </symbol>
+      <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="16" rx="2" />
+        <path d="M7 3v4m10-4v4M3 11h18m-13 4h2m4 0h2" />
+      </symbol>
+      <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 20V10m8 10V4m8 16v-7M2 21h20" />
+      </symbol>
+      <symbol id="icon-fuel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path
+          d="M3 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M2 21h14M3 10h11m0 4h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0V9l-4-4m2 2v4h2" />
+      </symbol>
+      <symbol id="icon-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="8" width="18" height="4" rx="1" />
+        <path d="M5 12v9h14v-9M12 8v13m0-13H8a3 3 0 1 1 3-3l1 3Zm0 0h4a3 3 0 1 0-3-3l-1 3Z" />
+      </symbol>
+      <symbol id="icon-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 8V5a2 2 0 0 0-2-2L4 6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16V8H4m16 4h-5v5h5" />
+        <path d="M17 14h.01" />
+      </symbol>
+      <symbol id="icon-route" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="5" cy="5" r="3" />
+        <circle cx="19" cy="19" r="3" />
+        <path d="M8 5h8a4 4 0 0 1 0 8H8a4 4 0 0 0 0 8h8" />
+      </symbol>
+      <symbol id="icon-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19a10 10 0 1 1 16 0H4Zm8-5 5-6M5 12h1m12 0h1M12 4v2" />
+      </symbol>
+      <symbol id="icon-growth" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m3 17 6-6 4 4 8-10m-6 0h6v6" />
+      </symbol>
+      <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M5 12h14" />
+      </symbol>
+      <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m8 4 12 8-12 8V4Z" />
+      </symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m5 12 4 4L19 6" />
+        <circle cx="12" cy="12" r="10" />
+      </symbol>
+      <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m9 3-1 3-3 1-2 3 2 2-2 2 2 3 3 1 1 3h6l1-3 3-1 2-3-2-2 2-2-2-3-3-1-1-3H9Z" />
+        <circle cx="12" cy="12" r="3" />
+      </symbol>
+      <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 7v5h-5M4 17v-5h5M5 7a8 8 0 0 1 13-2l2 3M4 16l2 3a8 8 0 0 0 13-2" />
+      </symbol>
+      <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m15 4 5 5M4 20l5-1L21 7a2 2 0 0 0-4-4L5 15l-1 5Z" />
+      </symbol>
+      <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <rect x="8" y="8" width="13" height="13" rx="2" />
+        <path d="M16 8V3H3v13h5" />
+      </symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m6 6 12 12M6 18 18 6" />
+      </symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m9 5 7 7-7 7" />
+      </symbol>
+      <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" />
+      </symbol>
+      <symbol id="icon-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5" />
+      </symbol>
+      <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2 3 6v6c0 5 9 10 9 10s9-5 9-10V6l-9-4Zm-4 10 3 3 5-6" />
+      </symbol>
+    </defs>
+  </svg>
+  <a class="skip-link" href="#dashboardMain">Ir al contenido</a>
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo"><svg class="icon " aria-hidden="true" focusable="false">
+            <use href="#icon-package" />
+          </svg></div>
+        <div>
+          <h1>Control de entregas</h1>
+          <div class="subtitle">Registro y rentabilidad de tu jornada</div>
+        </div>
+      </div>
+      <div class="header-actions"><button class="icon-btn" id="createJourneyButton"
+          aria-label="Nueva jornada">＋</button><button class="icon-btn" id="settingsToggle"
+          aria-label="Configuración"><svg class="icon " aria-hidden="true" focusable="false">
+            <use href="#icon-settings" />
+          </svg></button></div>
+    </header>
+    <div class="dashboard-body">
+      <nav class="sidebar" aria-label="Secciones del control">
+        <a class="nav-link" href="#summarySection" aria-label="Resumen" title="Resumen">
+          <svg class="icon" aria-hidden="true" focusable="false">
+            <use href="#icon-home" />
+          </svg>
+          <span>Resumen</span>
+        </a>
+        <a class="nav-link" href="#incentivesSection" aria-label="Incentivos" title="Incentivos">
+          <svg class="icon" aria-hidden="true" focusable="false">
+            <use href="#icon-gift" />
+          </svg>
+          <span>Incentivos</span>
+        </a>
+        <a class="nav-link" href="#fuelSection" aria-label="Combustible" title="Combustible">
+          <svg class="icon" aria-hidden="true" focusable="false">
+            <use href="#icon-fuel" />
+          </svg>
+          <span>Combustible</span>
+        </a>
+        <a class="nav-link" href="#deliveriesSection" aria-label="Entregas" title="Entregas">
+          <svg class="icon" aria-hidden="true" focusable="false">
+            <use href="#icon-package" />
+          </svg>
+          <span>Entregas</span>
+        </a>
+        <a class="nav-link" href="#historySection" aria-label="Historial" title="Historial">
+          <svg class="icon" aria-hidden="true" focusable="false">
+            <use href="#icon-calendar" />
+          </svg>
+          <span>Historial</span>
+        </a>
+      </nav>
+      <main class="workspace" id="dashboardMain">
+        <aside class="overview">
+          <div class="asideContainer">
+            <div class="overview-intro"><span class="eyebrow">TU PANEL DE RUTA</span>
+              <h2><svg class="icon intro-icon" aria-hidden="true" focusable="false">
+                  <use href="#icon-growth" />
+                </svg>Cada entrega <br>cuenta.</h2>
+              <p>Tu jornada, tus objetivos y tus ganancias, en un solo lugar.</p>
+              <div class="session-badge" id="sessionBadge"></div>
+            </div>
+            <div class="weekly-summary" aria-live="polite">
+              <div class="metric-label"><svg class="icon metric-icon" aria-hidden="true" focusable="false">
+                  <use href="#icon-wallet" />
+                </svg>Ganancias de esta semana</div><strong id="weeklyIncome">$0</strong>
+              <div class="small" id="weeklyPeriod"></div>
+              <div class="small">Después de SII · Incluye propinas e incentivos · Sin descontar combustible</div>
+            </div>
+            <figure class="weekly-deliveries" aria-labelledby="weeklyDeliveriesTitle" aria-describedby="weeklyPeriod">
+              <figcaption class="metric-label" id="weeklyDeliveriesTitle">Entregas de esta semana</figcaption>
+              <div class="weekly-bars" id="weeklyDeliveriesChart"></div>
+              <div class="small" id="weeklyDeliveriesTotal" style="margin-top:12px" aria-live="polite"></div>
+            </figure>
+            <section class="panel history-panel" id="historySection">
+              <div class="panel-head">
+                <h2><svg class="icon " aria-hidden="true" focusable="falsasidee">
+                    <use href="#icon-calendar" />
+                  </svg>Jornadas anteriores</h2><span class="small">Día y ganancia final</span>
+              </div>
+              <div id="journeyHistory" class="small" style="margin-top:12px">Todavía no hay jornadas cerradas.</div>
+            </section>
+          </div>
+        </aside>
+        <div class="operations" id="operations">
 
-<div class="section-title">Resumen en curso</div>
-<section class="grid" aria-live="polite">
- <div class="card"><div class="metric-label">Autonomía disponible</div><div class="metric-value green" id="autonomy">-- km</div><div class="metric-sub" id="fuelLeft">Combustible restante: -- L</div><div class="progress-wrap"><div class="progress" id="fuelProgress"></div></div></div>
- <div class="card"><div class="metric-label">Entregas realizadas</div><div class="metric-value" id="count">0</div><div class="metric-sub" id="requestCount">0 solicitudes registradas</div></div>
- <div class="card"><div class="metric-label">Ganancia</div><div class="metric-value" id="grossGain">$0</div><div class="metric-sub">Tarifas + propinas + incentivos</div></div>
- <div class="card"><div class="metric-label">Combustible consumido (estimado)</div><div class="metric-value red" id="fuelCost">$0</div><div class="metric-sub" id="fuelBreakdown">Pedidos: $0 · Fuera: $0</div></div>
- <div class="card"><div class="metric-label">Ganancia acumulada</div><div class="metric-value goal-main" id="goalValue">$0<span class="goal-target">/$0</span></div><div class="metric-sub" id="goalSub">Objetivo después de SII, combustible y propinas</div><div class="progress-wrap"><div class="progress" id="goalProgress"></div></div></div>
- <div class="card"><div class="metric-label">Kilómetros jornada <button class="secondary" id="updateOdometer" style="float:right;padding:3px 7px">↻</button></div><div class="metric-value blue" id="totalDistance">0,00 km</div><div class="metric-sub" id="distanceBreakdown">Pedidos: 0,00 · Fuera: 0,00 km</div></div>
- <div class="card"><div class="metric-label">Consumo real</div><div class="metric-value blue" id="consumption">-- km/L</div><div class="metric-sub" id="litersConsumed">Litros consumidos: --</div></div>
-</section>
+          <h2 class="section-title" id="summarySection"><svg class="icon " aria-hidden="true" focusable="false">
+              <use href="#icon-chart" />
+            </svg>Resumen en curso</h2>
+          <section class="grid summary-grid" aria-label="Indicadores de la jornada" aria-live="polite">
+            <div class="card">
+              <div class="metric-label"><svg class="icon metric-icon" aria-hidden="true" focusable="false">
+                  <use href="#icon-fuel" />
+                </svg>Autonomía disponible</div>
+              <div class="metric-value green" id="autonomy">-- km</div>
+              <div class="metric-sub" id="fuelLeft">Combustible restante: -- L</div>
+              <div class="progress-wrap">
+                <div class="progress" id="fuelProgress"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="metric-label"><svg class="icon metric-icon" aria-hidden="true" focusable="false">
+                  <use href="#icon-package" />
+                </svg>Entregas realizadas</div>
+              <div class="metric-value" id="count">0</div>
+              <div class="metric-sub" id="requestCount">0 solicitudes registradas</div>
+            </div>
+            <div class="card">
+              <div class="metric-label">Ganancia</div>
+              <div class="metric-value" id="grossGain">$0</div>
+              <div class="metric-sub">Tarifas + propinas + incentivos</div>
+            </div>
+            <div class="card">
+              <div class="metric-label"><svg class="icon metric-icon" aria-hidden="true" focusable="false">
+                  <use href="#icon-fuel" />
+                </svg>Combustible consumido (estimado)</div>
+              <div class="metric-value red" id="fuelCost">$0</div>
+              <div class="metric-sub" id="fuelBreakdown">Pedidos: $0 · Fuera: $0</div>
+            </div>
+            <div class="card">
+              <div class="metric-label"><svg class="icon metric-icon" aria-hidden="true" focusable="false">
+                  <use href="#icon-growth" />
+                </svg>Ganancia acumulada</div>
+              <div class="metric-value goal-main" id="goalValue">$0<span class="goal-target">/$0</span></div>
+              <div class="metric-sub" id="goalSub">Objetivo después de SII, combustible y propinas</div>
+              <div class="progress-wrap">
+                <div class="progress" id="goalProgress"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="metric-label"><svg class="icon metric-icon" aria-hidden="true" focusable="false">
+                  <use href="#icon-route" />
+                </svg>Kilómetros jornada <button class="secondary" id="updateOdometer" aria-label="Actualizar odómetro"
+                  title="Actualizar odómetro"><svg class="icon " aria-hidden="true" focusable="false">
+                    <use href="#icon-refresh" />
+                  </svg></button></div>
+              <div class="metric-value blue" id="totalDistance">0,00 km</div>
+              <div class="metric-sub" id="distanceBreakdown">Pedidos: 0,00 · Fuera: 0,00 km</div>
+            </div>
+            <div class="card">
+              <div class="metric-label"><svg class="icon metric-icon" aria-hidden="true" focusable="false">
+                  <use href="#icon-gauge" />
+                </svg>Consumo real</div>
+              <div class="metric-value blue" id="consumption">-- km/L</div>
+              <div class="metric-sub" id="litersConsumed">Litros consumidos: --</div>
+            </div>
+          </section>
 
-<section class="panel">
- <div class="panel-head"><h2>Incentivos</h2><button class="secondary" id="addIncentiveButton">＋ Añadir incentivo</button></div>
- <div id="incentiveList" class="incentive-list" aria-live="polite"></div>
-</section>
+          <section class="panel" id="incentivesSection">
+            <div class="panel-head">
+              <h2><svg class="icon " aria-hidden="true" focusable="false">
+                  <use href="#icon-gift" />
+                </svg>Incentivos</h2><button class="secondary" id="addIncentiveButton"><svg class="icon "
+                  aria-hidden="true" focusable="false">
+                  <use href="#icon-plus" />
+                </svg><span>Añadir incentivo</span></button>
+            </div>
+            <div id="incentiveList" class="incentive-list" aria-live="polite"></div>
+          </section>
 
-<section class="panel">
- <div class="panel-head"><h2>Cargas de combustible</h2><button class="secondary" id="addFuelButton">＋ Cargar combustible</button></div>
- <div class="small" id="refuelSummary" style="margin-top:12px"></div>
- <div class="small" id="refuelHistory" style="margin-top:8px"></div>
-</section>
+          <section class="panel" id="fuelSection">
+            <div class="panel-head">
+              <h2><svg class="icon " aria-hidden="true" focusable="false">
+                  <use href="#icon-fuel" />
+                </svg>Cargas de combustible</h2><button class="secondary" id="addFuelButton"><svg class="icon "
+                  aria-hidden="true" focusable="false">
+                  <use href="#icon-plus" />
+                </svg><span>Cargar combustible</span></button>
+            </div>
+            <div class="small" id="refuelSummary" style="margin-top:12px"></div>
+            <div class="small" id="refuelHistory" style="margin-top:8px"></div>
+          </section>
 
-<section class="panel">
- <div class="panel-head"><h2>Jornadas anteriores</h2><span class="small">Día y ganancia final</span></div>
- <div id="journeyHistory" class="small" style="margin-top:12px">Todavía no hay jornadas cerradas.</div>
-</section>
 
-<div class="modal-backdrop" id="settingsModalBackdrop"><section class="modal" id="settingsPanel">
- <div class="panel-head"><h2>Parámetros de cálculo</h2><span class="small">Se guardan automáticamente</span></div>
- <div class="settings-grid">
-  <label>Precio combustible (CLP/L)<input id="fuelPrice" type="number" min="0" step="1"></label>
-  <label>Rendimiento (aproximación) (km/L)<input id="efficiency" type="number" min="0.1" step="0.1"></label>
-  <label>Litros al inicio de la jornada<input id="initialLiters" type="number" min="0" step="0.01"></label>
-  <label>Capacidad estanque (litros)<input id="tankCapacity" type="number" min="0.1" step="0.1"></label>
-  <label>Retención SII (%)<input id="taxRate" type="number" min="0" max="100" step="0.01"></label>
- <label>Odómetro inicial predeterminado (km)<input id="odometer" type="number" min="0" step="0.01"></label>
- </div>
- <div class="small" style="margin-top:12px" id="derived">Costo por km: -- · Autonomía inicial: --</div>
- <div class="actions">
-  <button class="secondary" id="exportCsv">Exportar CSV</button>
-  <button class="secondary" id="exportJson">Respaldo JSON</button>
-  <button class="secondary" id="importButton">Importar respaldo</button>
-  <button class="secondary" id="resetButton">Restablecer datos</button>
-  <button class="secondary" id="closeSettingsButton">Cerrar</button>
-  <input type="file" id="importFile" accept="application/json" hidden>
- </div>
-</section></div>
 
-<div class="section-title">Entregas registradas</div>
-<section class="panel" style="padding:8px 10px">
- <div class="desktop-table table-wrap">
-  <table><thead><tr><th>#</th><th>Hora</th><th>Entregas</th><th>Distancia</th><th>Tarifa</th><th>Propina</th><th>Ret. SII</th><th>Ingreso</th><th>Combustible</th><th>Ganancia</th><th></th></tr></thead><tbody id="tableBody"></tbody></table>
- </div>
- <div class="mobile-list" id="mobileList"></div>
- <div class="empty" id="emptyState">Todavía no hay entregas. Usa el botón + para registrar la primera.</div>
-</section>
-<div class="actions"><button class="primary" id="finishJourneyButton">Finalizar jornada</button></div>
-<div class="footer-note">Los datos se almacenan en este navegador. Exporta un respaldo para no perderlos.</div>
-</div>
+          <div class="modal-backdrop" id="settingsModalBackdrop">
+            <section class="modal" id="settingsPanel">
+              <div class="panel-head">
+                <h2>Parámetros de cálculo</h2><span class="small">Se guardan automáticamente</span>
+              </div>
+              <div class="settings-grid">
+                <label>Precio combustible (CLP/L)<input id="fuelPrice" type="number" min="0" step="1"></label>
+                <label>Rendimiento (aproximación) (km/L)<input id="efficiency" type="number" min="0.1"
+                    step="0.1"></label>
+                <label>Litros al inicio de la jornada<input id="initialLiters" type="number" min="0"
+                    step="0.01"></label>
+                <label>Capacidad estanque (litros)<input id="tankCapacity" type="number" min="0.1" step="0.1"></label>
+                <label>Retención SII (%)<input id="taxRate" type="number" min="0" max="100" step="0.01"></label>
+                <label>Odómetro inicial predeterminado (km)<input id="odometer" type="number" min="0"
+                    step="0.01"></label>
+              </div>
+              <div class="small" style="margin-top:12px" id="derived">Costo por km: -- · Autonomía inicial: --</div>
+              <div class="actions">
+                <button class="secondary" id="exportCsv"><svg class="icon " aria-hidden="true" focusable="false">
+                    <use href="#icon-download" />
+                  </svg><span>Exportar CSV</span></button>
+                <button class="secondary" id="exportJson"><svg class="icon " aria-hidden="true" focusable="false">
+                    <use href="#icon-download" />
+                  </svg><span>Respaldo JSON</span></button>
+                <button class="secondary" id="importButton"><svg class="icon " aria-hidden="true" focusable="false">
+                    <use href="#icon-upload" />
+                  </svg><span>Importar respaldo</span></button>
+                <button class="secondary" id="resetButton">Restablecer datos</button>
+                <button class="secondary" id="closeSettingsButton">Cerrar</button>
+                <input type="file" id="importFile" accept="application/json" hidden>
+              </div>
+            </section>
+          </div>
 
-<button class="fab" id="addButton"><span>＋</span>Agregar entrega</button>
-<div class="modal-backdrop" id="modalBackdrop">
- <form class="modal" id="orderForm">
-  <h2>Nueva entrega</h2><p>Ingresa los totales de la solicitud y cuántas entregas incluye. La cantidad no multiplica la tarifa ni la distancia.</p>
-  <div class="settings-grid">
-   <label>Cantidad de entregas<input id="deliveryCountInput" type="number" min="1" step="1" inputmode="numeric" value="1" required></label>
-   <label>Tarifa total (CLP)<input id="fareInput" type="number" min="1" step="1" placeholder="Ej. 1972" required></label>
-   <label>Distancia (km)<input id="distanceInput" type="number" min="0.01" step="0.01" placeholder="Ej. 7,26" required></label>
-   <label>Propina exenta (CLP)<input id="tipInput" type="number" min="0" step="1" value="0" placeholder="Opcional"></label>
+          <h2 class="section-title" id="deliveriesSection"><svg class="icon " aria-hidden="true" focusable="false">
+              <use href="#icon-package" />
+            </svg>Entregas registradas</h2>
+          <section class="panel deliveries-panel">
+            <div class="desktop-table table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Hora</th>
+                    <th>Entregas</th>
+                    <th>Distancia</th>
+                    <th>Tarifa</th>
+                    <th>Propina</th>
+                    <th>Ret. SII</th>
+                    <th>Ingreso</th>
+                    <th>Combustible</th>
+                    <th>Ganancia</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+            <div class="mobile-list" id="mobileList"></div>
+            <div class="empty" id="emptyState">Todavía no hay entregas. Usa el botón + para registrar la primera.</div>
+          </section>
+          <div class="actions"><button class="primary" id="finishJourneyButton"><svg class="icon " aria-hidden="true"
+                focusable="false">
+                <use href="#icon-check" />
+              </svg><span>Finalizar jornada</span></button></div>
+          <div class="footer-note"><svg class="icon " aria-hidden="true" focusable="false">
+              <use href="#icon-shield" />
+            </svg>Los datos se almacenan en este navegador. Exporta un respaldo para no perderlos.</div>
+        </div>
+      </main>
+    </div>
   </div>
-  <div class="small" id="preview" style="margin-top:13px">Ingresa distancia y tarifa para ver la ganancia estimada.</div>
-  <div class="modal-actions"><button type="button" class="secondary" id="cancelButton">Cancelar</button><button type="submit" class="primary">Guardar entrega</button></div>
-</form>
-</div>
-<div class="modal-backdrop" id="journeyModalBackdrop"><form class="modal" id="journeyForm"><h2>Nueva jornada</h2><p>Configura los parámetros iniciales. Los litros disponibles se proponen desde el combustible restante de la última jornada finalizada y puedes corregirlos.</p><div class="settings-grid">
- <label>Odómetro inicial (km)<input id="newStart" type="number" min="0" step="0.01" required></label>
- <label>Litros disponibles<input id="newLiters" type="number" min="0" step="0.01" required></label>
- <label>Precio combustible (CLP/L)<input id="newFuelPrice" type="number" min="0" step="1" required></label>
- <label>Ganancia objetivo (CLP)<input id="newGoal" type="number" min="0" step="1" required></label>
- <label>Retención SII (%)<input id="newTaxRate" type="number" min="0" max="100" step="0.01" value="15.25" required></label>
- <label>Rendimiento (aproximación) (km/L)<input id="newEfficiency" type="number" min="0.1" step="0.1" required></label>
- <label>Capacidad estanque (L)<input id="newTank" type="number" min="0.1" step="0.1" required></label>
- </div><div class="modal-actions"><button type="button" class="secondary" id="cancelJourneyButton">Cancelar</button><button type="submit" class="primary">Iniciar jornada</button></div></form></div>
-<div class="modal-backdrop" id="finishModalBackdrop"><form class="modal" id="finishForm"><h2>Finalizar jornada</h2><p>Confirma el odómetro final para recalcular todos los indicadores.</p><label>Odómetro final (km)<input id="finishOdometer" type="number" min="0" step="0.01" required></label><div class="modal-actions"><button type="button" class="secondary" id="cancelFinishButton">Cancelar</button><button type="submit" class="primary">Finalizar jornada</button></div></form></div>
-<div class="modal-backdrop" id="odometerModalBackdrop"><form class="modal" id="odometerForm"><h2>Actualizar odómetro</h2><p>Ingresa la lectura actual del tablero de la motocicleta.</p><label>Odómetro actual (km)<input id="currentOdometer" type="number" min="0" step="0.01" required></label><div class="modal-actions"><button type="button" class="secondary" id="cancelOdometerButton">Cancelar</button><button type="submit" class="primary">Actualizar</button></div></form></div>
-<div class="modal-backdrop" id="historyModalBackdrop"><div class="modal"><h2 id="historyTitle">Resumen de jornada</h2><div class="grid" id="historyMetrics"></div><div class="modal-actions"><button type="button" class="primary" id="closeHistoryButton">Cerrar</button></div></div></div>
-<div class="modal-backdrop" id="fuelModalBackdrop"><form class="modal" id="fuelForm" role="dialog" aria-modal="true" aria-labelledby="fuelTitle">
- <h2 id="fuelTitle">Cargar combustible</h2><p>Registra la carga y el odómetro actual. El importe comprado se muestra separado del gasto por consumo estimado.</p>
- <div class="settings-grid">
-  <label>Litros cargados (L)<input id="refuelLiters" type="number" min="0.01" step="0.01" inputmode="decimal" required></label>
-  <label>Precio (CLP/L)<input id="refuelPrice" type="number" min="0" step="1" inputmode="numeric" required></label>
-  <label>Odómetro actual (km)<input id="refuelOdometer" type="number" min="0" step="0.01" inputmode="decimal" required></label>
- </div>
- <div class="small red" id="refuelError" role="alert" style="margin-top:10px"></div>
- <div class="small" id="refuelPreview" style="margin-top:10px" aria-live="polite"></div>
- <div class="modal-actions"><button type="button" class="secondary" id="cancelFuelButton">Cancelar</button><button type="submit" class="primary">Guardar carga</button></div>
-</form></div>
-<div class="modal-backdrop" id="incentiveModalBackdrop"><form class="modal" id="incentiveForm" role="dialog" aria-modal="true" aria-labelledby="incentiveTitle">
- <h2 id="incentiveTitle">Añadir incentivo</h2><p>Se cuentan las entregas entre ambas fechas, inclusive, en la hora local. Al completar la meta, el monto se suma automáticamente con la retención configurada.</p>
- <div class="settings-grid">
-  <label>Cantidad de viajes / entregas<input id="incentiveTarget" type="number" min="1" step="1" inputmode="numeric" required></label>
-  <label>Monto del incentivo (CLP)<input id="incentiveAmount" type="number" min="1" step="1" inputmode="numeric" required></label>
-  <label>Fecha de inicio<input id="incentiveStart" type="date" required></label>
-  <label>Fecha de término<input id="incentiveEnd" type="date" required></label>
- </div>
- <div class="small red" id="incentiveError" role="alert" style="margin-top:10px"></div>
- <div class="modal-actions"><button type="button" class="secondary" id="cancelIncentiveButton">Cancelar</button><button type="submit" class="primary">Guardar incentivo</button></div>
-</form></div>
-<div class="toast" id="toast" role="status"></div>
 
-<script>
-(() => {
- const KEY='uber_delivery_tracker_v2';
- const defaults={settings:{fuelPrice:1499,efficiency:28,initialLiters:3.34,tankCapacity:12,taxRate:15.25,odometer:877.2,goal:20000},orders:[],journeys:[],incentives:[],activeJourney:null};
- let state=load();
- let editingId=null;
- const $=id=>document.getElementById(id);
- const money=n=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(Math.round(n||0));
- const number=n=>new Intl.NumberFormat('es-CL',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number.isFinite(n)?n:0);
- const dateLabel=d=>new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(d));
- const costPerKm=()=>state.settings.fuelPrice/state.settings.efficiency;
- function newJourney(start,settings=defaults.settings){return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),start:Number(start)||0,end:null,startedAt:new Date().toISOString(),closedAt:null,refuels:[],settings:{...settings}};}
- function deliveryCount(o){return Number.isSafeInteger(o.deliveryCount)&&o.deliveryCount>0?o.deliveryCount:1;}
- function localDateInput(date=new Date()){return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');}
- function dateStart(value){
-  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;
-  const [year,month,day]=value.split('-').map(Number),date=new Date(0);
-  date.setFullYear(year,month-1,day);date.setHours(0,0,0,0);
-  return localDateInput(date)===value?date:null;
- }
- function incentiveRange(p){const start=dateStart(p.startDate),end=dateStart(p.endDate);if(!start||!end||end<start)return null;end.setDate(end.getDate()+1);return {start,end};}
- function migrate(v){
-  const s={...defaults,settings:{...defaults.settings,...(v.settings||{})},orders:Array.isArray(v.orders)?v.orders:[],journeys:Array.isArray(v.journeys)?v.journeys:[],activeJourney:v.activeJourney||null,incentives:Array.isArray(v.incentives)?v.incentives:[]};
-  s.orders=s.orders.map(o=>({...o,tip:Number(o.tip)||0}));
-  if(!s.activeJourney){s.activeJourney=newJourney(s.settings.odometer,s.settings);}
-  const normalizeJourney=j=>({...j,settings:{...s.settings,...j.settings},refuels:(Array.isArray(j.refuels)?j.refuels:[]).filter(r=>r&&Number.isFinite(r.liters)&&r.liters>0&&Number.isFinite(r.price)&&r.price>=0&&Number.isFinite(r.odometer)&&typeof r.createdAt==='string'&&Number.isFinite(Date.parse(r.createdAt)))});
-  s.activeJourney=normalizeJourney(s.activeJourney);
-  s.journeys=s.journeys.map(normalizeJourney);
-  s.orders=s.orders.map(o=>{
-   const journeyId=o.journeyId||s.activeJourney.id,j=[s.activeJourney,...s.journeys].find(j=>j.id===journeyId);
-   return {...o,journeyId,deliveryCount:deliveryCount(o),taxRate:Number.isFinite(o.taxRate)&&o.taxRate>=0&&o.taxRate<=100?o.taxRate:(j?.settings.taxRate??s.settings.taxRate)};
-  });
-  s.incentives=s.incentives.filter(p=>p&&Number.isSafeInteger(p.target)&&p.target>0&&Number.isFinite(p.amount)&&p.amount>0&&incentiveRange(p)).map(p=>({...p,taxRate:Number.isFinite(p.taxRate)&&p.taxRate>=0&&p.taxRate<=100?p.taxRate:s.settings.taxRate}));
-  return s;
- }
- function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('uber_delivery_tracker_v1'));if(v&&typeof v==='object')return migrate(v);}catch(e){}return migrate(defaults);}
- function save(){for(const j of [...state.journeys,active()]){if(j.closedAt)j.remainingLiters=calculateRemaining(j);}localStorage.setItem(KEY,JSON.stringify(state));render();}
- function active(){return state.activeJourney;}
- function loadedLiters(){return Number(state.settings.initialLiters)+active().refuels.reduce((sum,r)=>sum+r.liters,0);}
- function journeySettings(j){return j?.closedAt?(j.settings||state.settings):state.settings;}
- function calc(o){const j=o.journeyId===active().id?active():state.journeys.find(j=>j.id===o.journeyId),s=journeySettings(j),rate=o.taxRate??s.taxRate,tax=o.fare*rate/100,subtotal=o.fare-tax,fuel=o.distance*s.fuelPrice/s.efficiency;return {tax,subtotal,fuel,tip:Number(o.tip)||0,profit:subtotal+(Number(o.tip)||0)-fuel};}
- function incentiveStatus(p,now=new Date()){
-  const range=incentiveRange(p);let completed=0,completion=null;
-  const orders=state.orders.filter(o=>{const date=new Date(o.createdAt);return date>=range.start&&date<range.end&&date<=now;}).sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
-  for(const o of orders){completed+=deliveryCount(o);if(!completion&&completed>=p.target)completion=o;}
-  return {promotion:p,completed,completion,percent:Math.min(100,completed/p.target*100),active:now>=range.start&&now<range.end,upcoming:now<range.start,net:p.amount*(1-p.taxRate/100)};
- }
- function incentiveStatuses(now=new Date()){return state.incentives.map(p=>incentiveStatus(p,now));}
- function totals(j=active()){
-  let distance=0,fare=0,tax=0,tips=0,gross=0;
-  state.orders.filter(o=>o.journeyId===j.id).forEach(o=>{const c=calc(o);distance+=o.distance;fare+=o.fare;tax+=c.tax;tips+=c.tip;gross+=c.subtotal+c.tip;});
-  for(const reward of incentiveStatuses().filter(r=>r.completion?.journeyId===j.id)){fare+=reward.promotion.amount;tax+=reward.promotion.amount-reward.net;gross+=reward.net;}
-  const s=journeySettings(j),total=j.end==null?null:Math.max(distance,j.end-j.start+(Number.isFinite(j.orderDistanceAtReading)?Math.max(0,distance-j.orderDistanceAtReading):0)),outside=total==null?null:total-distance;
-  const liters=(total==null?distance:total)/s.efficiency,fuel=liters*s.fuelPrice;
-  return {distance,fare,tax,fuel,tips,profit:gross-fuel,total,outside,liters};
- }
- function calculateRemaining(j){
-  const s=journeySettings(j),loaded=Number(s.initialLiters)+j.refuels.reduce((sum,r)=>sum+r.liters,0);
-  return Math.max(0,loaded-totals(j).liters);
- }
- function remainingForJourney(j){return j.closedAt&&Number.isFinite(j.remainingLiters)?j.remainingLiters:calculateRemaining(j);}
- function latestFinishedJourney(){return [...state.journeys,...(active().closedAt?[active()]:[])].filter(j=>j.closedAt).sort((a,b)=>new Date(b.closedAt)-new Date(a.closedAt))[0];}
- function renderWeeklyAndIncentives(){
-  const now=new Date(),start=new Date(now);start.setHours(0,0,0,0);start.setDate(start.getDate()-(start.getDay()+6)%7);
-  const end=new Date(start);end.setDate(end.getDate()+7);const statuses=incentiveStatuses(now);
-  let income=state.orders.reduce((sum,o)=>{const date=new Date(o.createdAt);return date>=start&&date<end&&date<=now?sum+calc(o).subtotal+calc(o).tip:sum;},0);
-  for(const reward of statuses){if(reward.completion){const date=new Date(reward.completion.createdAt);if(date>=start&&date<end)income+=reward.net;}}
-  $('weeklyIncome').textContent=money(income);
-  const last=new Date(end);last.setDate(last.getDate()-1);const format=new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit'});
-  $('weeklyPeriod').textContent=format.format(start)+' – '+format.format(last)+' · Lunes a domingo';
-  $('incentiveList').replaceChildren();
-  if(!statuses.length){$('incentiveList').textContent='Todavía no hay incentivos. Añade una promoción para seguir su progreso.';return;}
-  for(const item of statuses){
-   const p=item.promotion,card=document.createElement('article');card.className='incentive-card';
-   const title=document.createElement('strong');title.textContent=money(p.amount)+' por '+p.target+' entregas';card.append(title);
-   const period=document.createElement('div');period.className='small';period.textContent=p.startDate+' → '+p.endDate;card.append(period);
-   const status=document.createElement('div');status.className=item.completion?'green':'small';status.textContent=item.completion?'Completado · '+money(item.net)+' después de SII, incluido en ganancias':item.upcoming?'Programado':item.active?'Activo':'Finalizado sin completar';card.append(status);
-   const progress=document.createElement('div');progress.className='metric-sub';progress.textContent=item.completed+' / '+p.target+' entregas · '+Math.floor(item.percent)+'%';card.append(progress);
-   const track=document.createElement('div');track.className='progress-wrap';track.setAttribute('role','progressbar');track.setAttribute('aria-label','Progreso del incentivo de '+money(p.amount));track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax',String(p.target));track.setAttribute('aria-valuenow',String(Math.min(item.completed,p.target)));
-   const bar=document.createElement('div');bar.className='progress';bar.style.width=item.percent+'%';track.append(bar);card.append(track);$('incentiveList').append(card);
-  }
- }
- function recalibrateEfficiency(){
-  const j=active(),loaded=loadedLiters();
-  if(j.end==null||loaded<=0)return false;
-  const km=Math.max(0,j.end-j.start),estimated=km/state.settings.efficiency;
-  if(estimated>=loaded&&km>0){state.settings.efficiency=km/loaded;return true;}
-  return false;
- }
- function todayJourney(){
-  const today=localDateInput();
-  if(localDateInput(new Date(active().startedAt))===today)return active();
-  return state.journeys.filter(j=>localDateInput(new Date(j.startedAt))===today).sort((a,b)=>new Date(b.startedAt)-new Date(a.startedAt))[0];
- }
- function renderJourneyActions(){
-  const closed=Boolean(active().closedAt),today=todayJourney(),button=$('createJourneyButton');
-  $('finishJourneyButton').disabled=closed;$('addButton').disabled=closed;$('updateOdometer').disabled=closed;
-  button.disabled=Boolean(today&&!today.closedAt);
-  const label=today?(today.closedAt?'Reanudar jornada':'Jornada en curso'):'Nueva jornada';
-  button.textContent=today?label:'＋';button.className=today?'secondary':'icon-btn';button.setAttribute('aria-label',label);button.title=label;
- }
- function resumeTodayJourney(){
-  const journey=todayJourney();if(!journey)return false;
-  if(!journey.closedAt){showToast('La jornada de hoy ya está en curso');return true;}
-  state.activeJourney=structuredClone(journey);state.settings={...state.settings,...journey.settings};
-  active().closedAt=null;delete active().remainingLiters;
-  state.journeys=state.journeys.filter(j=>j.id!==journey.id);
-  Object.entries(fields).forEach(([id,key])=>$(id).value=state.settings[key]);
-  save();showToast('Jornada de hoy reanudada');return true;
- }
- function render(){
-  const s=state.settings,t=totals(),orders=state.orders.filter(o=>o.journeyId===active().id),count=orders.reduce((sum,o)=>sum+deliveryCount(o),0),remainingLiters=Math.max(0,loadedLiters()-t.liters);
-  const remainingKm=remainingLiters*s.efficiency,initialKm=s.initialLiters*s.efficiency;
-  $('autonomy').textContent=number(remainingKm)+' km';
-  $('fuelLeft').textContent='Combustible restante: '+number(remainingLiters)+' L';
-  $('fuelProgress').style.width=(s.tankCapacity>0?Math.max(0,Math.min(100,remainingLiters/s.tankCapacity*100)):0)+'%';
-  const refuels=active().refuels,refuelLiters=refuels.reduce((sum,r)=>sum+r.liters,0),refuelCost=refuels.reduce((sum,r)=>sum+r.liters*r.price,0);
-  $('addFuelButton').disabled=Boolean(active().closedAt);
-  $('refuelSummary').textContent=refuels.length+' cargas · '+number(refuelLiters)+' L · Comprado: '+money(refuelCost);
-  $('refuelHistory').textContent=refuels.length?refuels.map(r=>dateLabel(r.createdAt)+' · '+number(r.liters)+' L · '+money(r.liters*r.price)+' · '+number(r.odometer)+' km').join(' / '):(active().closedAt?'Jornada finalizada. Inicia una nueva para registrar cargas.':'Todavía no hay cargas durante esta jornada.');
-  renderJourneyActions();
-  $('count').textContent=count;
-  $('requestCount').textContent=orders.length+' solicitudes registradas';
-  renderWeeklyAndIncentives();
-  $('grossGain').textContent=money(t.fare+t.tips);
-  $('fuelCost').textContent=money(t.fuel);
-  const orderFuel=t.distance*costPerKm(),outsideFuel=Math.max(0,t.outside||0)*costPerKm();
-  $('fuelBreakdown').textContent='Pedidos: '+money(orderFuel)+' · Fuera: '+money(outsideFuel);
-  $('goalValue').innerHTML=money(t.profit)+'<span class="goal-target">/'+money(s.goal)+'</span>';
-  $('goalSub').textContent='Después de SII, combustible y propinas'; $('goalProgress').style.width=(s.goal>0?Math.min(100,Math.max(0,t.profit/s.goal*100)):0)+'%';
-  $('totalDistance').textContent=(t.total==null?number(t.distance):number(t.total))+' km';
-  $('distanceBreakdown').textContent='Pedidos: '+number(t.distance)+' · Fuera: '+(t.outside==null?'--':number(Math.max(0,t.outside)))+' km';
-  $('consumption').textContent=(t.total>0?number(t.total/t.liters):'--')+' km/L';
-  $('litersConsumed').textContent='Litros consumidos: '+(t.total==null?'--':number(t.liters)+' L');
-  $('derived').textContent='Costo por km: '+money(costPerKm())+' · Autonomía inicial: '+number(initialKm)+' km · Odómetro estimado: '+number(active().start+(t.total||t.distance))+' km';
-  $('emptyState').style.display=count?'none':'block';
-  const rows=orders.slice().reverse();
-  $('tableBody').innerHTML=rows.map((o,i)=>{const c=calc(o);return `<tr><td>${orders.length-i}</td><td>${dateLabel(o.createdAt)}</td><td>${deliveryCount(o)}</td><td>${number(o.distance)} km</td><td>${money(o.fare)}</td><td class="green">${money(c.tip)}</td><td>${money(-c.tax)}</td><td>${money(c.subtotal+c.tip)}</td><td>${money(-c.fuel)}</td><td class="${c.profit>=0?'green':'red'}">${money(c.profit)}</td><td><button class="secondary" data-edit="${o.id}">Editar</button><button class="delete" data-delete="${o.id}" aria-label="Eliminar">×</button></td></tr>`}).join('');
-  $('mobileList').innerHTML=rows.map((o,i)=>{const c=calc(o);return `<article class="order-card"><div class="order-top"><div><span class="order-number">Solicitud ${orders.length-i} · ${deliveryCount(o)} entregas</span><div class="order-date">${dateLabel(o.createdAt)}</div></div><div><button class="secondary" data-edit="${o.id}">Editar</button><button class="secondary" data-duplicate="${o.id}" ${active().closedAt?'disabled':''}>Duplicar</button><button class="delete" data-delete="${o.id}" aria-label="Eliminar entrega">×</button></div></div><div class="order-main"><div class="order-item"><span>Distancia</span><strong>${number(o.distance)} km</strong></div><div class="order-item"><span>Tarifa</span><strong>${money(o.fare)}</strong></div><div class="order-item"><span>Propina exenta</span><strong class="green">${money(c.tip)}</strong></div><div class="order-item"><span>Retención SII</span><strong>${money(-c.tax)}</strong></div><div class="order-item"><span>Ingreso</span><strong>${money(c.subtotal+c.tip)}</strong></div><div class="order-item"><span>Ganancia</span><strong class="${c.profit>=0?'green':'red'}">${money(c.profit)}</strong></div></div></article>`}).join('');
-  $('journeyHistory').innerHTML=state.journeys.length?state.journeys.slice().reverse().map(j=>{const net=totals(j).profit;return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)"><strong>${new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date(j.startedAt))}</strong><strong>${money(net)}</strong><button class="icon-btn" data-history="${j.id}" aria-label="Ver jornada">›</button></div>`}).join(''):'Todavía no hay jornadas cerradas.';
- }
- function showToast(msg){$('toast').textContent=msg;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2100);}
- function openModal(o=null){if(!o&&active().closedAt){showToast('Reanuda o inicia una jornada para agregar entregas');return;}editingId=o?.id||null;$('modalBackdrop').classList.add('open');$('distanceInput').value=o?.distance||'';$('fareInput').value=o?.fare||'';$('tipInput').value=o?.tip||0;$('deliveryCountInput').value=o?deliveryCount(o):1;$('orderForm').querySelector('h2').textContent=editingId?'Editar entrega':'Nueva entrega';$('preview').textContent='Ingresa distancia, tarifa y propina para ver la ganancia estimada.';$('distanceInput').focus();}
- function closeModal(){$('modalBackdrop').classList.remove('open');}
- $('addButton').onclick=()=>openModal();$('cancelButton').onclick=closeModal;
- $('modalBackdrop').addEventListener('click',e=>{if(e.target===$('modalBackdrop'))closeModal();});
- $('orderForm').addEventListener('submit',e=>{e.preventDefault();if(!editingId&&active().closedAt){showToast('La jornada está finalizada');return;}const distance=Number($('distanceInput').value),fare=Number($('fareInput').value),tip=Number($('tipInput').value)||0,quantity=Number($('deliveryCountInput').value);if(!Number.isSafeInteger(quantity)||quantity<1||![distance,fare,tip].every(Number.isFinite)||!(distance>0)||!(fare>0)||tip<0){showToast('Ingresa valores válidos');return;}if(editingId){const o=state.orders.find(x=>x.id===editingId);if(o)Object.assign(o,{distance,fare,tip,deliveryCount:quantity});}else state.orders.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),distance,fare,tip,deliveryCount:quantity,taxRate:state.settings.taxRate,createdAt:new Date().toISOString(),journeyId:active().id});save();closeModal();showToast(editingId?'Entrega actualizada':'Entrega guardada');editingId=null;});
- function updatePreview(){const d=Number($('distanceInput').value),f=Number($('fareInput').value),tip=Number($('tipInput').value)||0;if(d>0&&f>0){const original=editingId?state.orders.find(o=>o.id===editingId):null,c=calc({...original,distance:d,fare:f,tip});$('preview').textContent=`Retención: ${money(c.tax)} · Propina exenta: ${money(tip)} · Combustible: ${money(c.fuel)} · Ganancia: ${money(c.profit)}`;}else $('preview').textContent='Ingresa distancia, tarifa y propina para ver la ganancia estimada.';}
- $('distanceInput').addEventListener('input',updatePreview);$('fareInput').addEventListener('input',updatePreview);$('tipInput').addEventListener('input',updatePreview);
- function fuelReadingMinimum(){const j=active();return Math.max(j.start+(totals().total??totals().distance),j.end??j.start,...j.refuels.map(r=>r.odometer));}
- function showFuelError(message){$('refuelError').textContent=message;$('fuelForm').scrollTop=$('fuelForm').scrollHeight;}
- function updateFuelPreview(){
-  const liters=Number($('refuelLiters').value),price=Number($('refuelPrice').value),odometer=Number($('refuelOdometer').value);
-  const remaining=Math.max(0,loadedLiters()-Math.max(0,odometer-active().start)/state.settings.efficiency);
-  $('refuelPreview').textContent='Importe: '+money(liters*price)+' · Espacio estimado: '+number(Math.max(0,state.settings.tankCapacity-remaining))+' L';
- }
- $('addFuelButton').onclick=()=>{
-  if(active().closedAt){showToast('Inicia una nueva jornada para cargar combustible');return;}
-  $('fuelForm').reset();$('refuelError').textContent='';$('refuelPrice').value=state.settings.fuelPrice;
-  $('refuelOdometer').value=fuelReadingMinimum().toFixed(2);updateFuelPreview();
-  $('fuelModalBackdrop').classList.add('open');$('refuelLiters').focus({preventScroll:true});
- };
- $('cancelFuelButton').onclick=()=>$('fuelModalBackdrop').classList.remove('open');
- $('fuelModalBackdrop').addEventListener('click',e=>{if(e.target===$('fuelModalBackdrop'))$('fuelModalBackdrop').classList.remove('open');});
- ['refuelLiters','refuelPrice','refuelOdometer'].forEach(id=>$(id).addEventListener('input',updateFuelPreview));
- $('fuelForm').addEventListener('submit',e=>{
-  e.preventDefault();
-  if(active().closedAt){showFuelError('La jornada ya está finalizada');return;}
-  const liters=Number($('refuelLiters').value),price=Number($('refuelPrice').value),odometer=Number($('refuelOdometer').value);
-  if(!$('fuelForm').checkValidity()||![liters,price,odometer].every(Number.isFinite)||liters<=0||price<0||odometer+0.000001<fuelReadingMinimum()){showFuelError('Revisa litros, precio y odómetro; no puede retroceder');return;}
-  const remaining=Math.max(0,loadedLiters()-(odometer-active().start)/state.settings.efficiency);
-  if(remaining+liters>state.settings.tankCapacity+0.000001){showFuelError('La carga supera el espacio del estanque. Revisa los litros y el odómetro.');return;}
-  active().refuels.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),liters,price,odometer,createdAt:new Date().toISOString()});
-  active().orderDistanceAtReading=totals().distance;active().end=odometer;
-  save();$('fuelModalBackdrop').classList.remove('open');showToast('Carga de combustible registrada');
- });
- $('createJourneyButton').onclick=()=>{if(resumeTodayJourney())return;const s=state.settings,last=latestFinishedJourney();[['newStart',last?.end??fuelReadingMinimum()],['newLiters',Number(remainingForJourney(last||active()).toFixed(2))],['newFuelPrice',s.fuelPrice],['newGoal',s.goal],['newTaxRate',15.25],['newEfficiency',s.efficiency],['newTank',s.tankCapacity]].forEach(([id,v])=>$(id).value=v);$('journeyModalBackdrop').classList.add('open');};
- $('cancelJourneyButton').onclick=()=>$('journeyModalBackdrop').classList.remove('open');
- $('journeyForm').addEventListener('submit',e=>{e.preventDefault();if(todayJourney()){$('journeyModalBackdrop').classList.remove('open');resumeTodayJourney();return;}const start=Number($('newStart').value),liters=Number($('newLiters').value),tank=Number($('newTank').value);if(!Number.isFinite(start)||start<0||!Number.isFinite(liters)||liters<0||!Number.isFinite(tank)||tank<=0||liters>tank){showToast('Revisa el odómetro y los litros disponibles; no pueden superar el estanque');return;}state.settings={...state.settings,odometer:start,initialLiters:Number($('newLiters').value)||0,fuelPrice:Number($('newFuelPrice').value)||0,goal:Number($('newGoal').value)||0,taxRate:Number($('newTaxRate').value),efficiency:Number($('newEfficiency').value)||28,tankCapacity:Number($('newTank').value)||12};state.activeJourney=newJourney(start,state.settings);Object.entries(fields).forEach(([id,key])=>$(id).value=state.settings[key]);$('journeyModalBackdrop').classList.remove('open');save();showToast('Nueva jornada iniciada');});
- $('updateOdometer').onclick=()=>{if(active().closedAt)return;$('currentOdometer').value=fuelReadingMinimum().toFixed(2);$('odometerModalBackdrop').classList.add('open');$('currentOdometer').focus();};
- $('cancelOdometerButton').onclick=()=>$('odometerModalBackdrop').classList.remove('open');
- $('odometerForm').addEventListener('submit',e=>{e.preventDefault();if(active().closedAt){showToast('Reanuda la jornada antes de actualizar el odómetro');return;}const v=Number($('currentOdometer').value),t=totals();if(!Number.isFinite(v)||v+0.000001<fuelReadingMinimum()){showToast('Odómetro no válido o menor que los km de pedidos');return;}active().orderDistanceAtReading=t.distance;active().end=v;active().closedAt=null;const adjusted=recalibrateEfficiency();$('odometerModalBackdrop').classList.remove('open');save();showToast(adjusted?'Odómetro actualizado y rendimiento recalculado':'Odómetro actualizado');});
- $('finishJourneyButton').onclick=()=>{if(active().closedAt)return;$('finishOdometer').value=fuelReadingMinimum().toFixed(2);$('finishModalBackdrop').classList.add('open');};
- $('cancelFinishButton').onclick=()=>$('finishModalBackdrop').classList.remove('open');
- $('finishForm').addEventListener('submit',e=>{e.preventDefault();if(active().closedAt){$('finishModalBackdrop').classList.remove('open');return;}const end=Number($('finishOdometer').value),t=totals();if(!Number.isFinite(end)||end+0.000001<fuelReadingMinimum()){showToast('El odómetro final no es válido');return;}active().orderDistanceAtReading=t.distance;active().end=end;active().closedAt=new Date().toISOString();active().settings={...state.settings};const adjusted=recalibrateEfficiency();active().settings={...state.settings};active().remainingLiters=Math.max(0,loadedLiters()-totals().liters);state.journeys=state.journeys.filter(j=>j.id!==active().id);state.journeys.push(structuredClone(active()));$('finishModalBackdrop').classList.remove('open');save();showToast(adjusted?'Jornada finalizada y rendimiento recalculado':'Jornada finalizada');});
- $('closeHistoryButton').onclick=()=>$('historyModalBackdrop').classList.remove('open');
- document.addEventListener('click',e=>{const del=e.target.closest('[data-delete]'),dup=e.target.closest('[data-duplicate]'),edit=e.target.closest('[data-edit]'),hist=e.target.closest('[data-history]');if(del&&confirm('¿Eliminar esta entrega?')){state.orders=state.orders.filter(o=>o.id!==del.dataset.delete);save();showToast('Entrega eliminada');}if(dup&&active().closedAt){showToast('Reanuda o inicia una jornada para agregar entregas');return;}if(dup){const o=state.orders.find(x=>x.id===dup.dataset.duplicate);if(o){state.orders.push({...o,taxRate:state.settings.taxRate,id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),createdAt:new Date().toISOString()});save();showToast('Entrega duplicada');}}if(edit){const o=state.orders.find(x=>x.id===edit.dataset.edit);if(o)openModal(o);}if(hist){const j=state.journeys.find(x=>x.id===hist.dataset.history);if(j){const t=totals(j);$('historyTitle').textContent='Jornada del '+dateLabel(j.startedAt);$('historyMetrics').innerHTML=[['Ganancia',t.fare+t.tips],['Total neto',t.profit],['Kilómetros',t.total],['Fuera de pedido',t.outside],['Combustible consumido',t.fuel],['Cargas compradas',j.refuels.reduce((sum,r)=>sum+r.liters*r.price,0)],['Consumo',t.total/t.liters]].map(x=>`<div class="card"><div class="metric-label">${x[0]}</div><div class="metric-value">${typeof x[1]==='number'&&x[0].includes('Kilómetros')?number(x[1])+' km':x[0]==='Fuera de pedido'?number(x[1])+' kms':x[0]==='Consumo'?number(x[1])+' km/L':money(x[1])}</div></div>`).join('');$('historyModalBackdrop').classList.add('open');}}});
- const fields={fuelPrice:'fuelPrice',efficiency:'efficiency',initialLiters:'initialLiters',tankCapacity:'tankCapacity',taxRate:'taxRate',odometer:'odometer'};
- Object.entries(fields).forEach(([id,key])=>{const el=$(id);el.value=state.settings[key];el.addEventListener('change',()=>{const n=Number(el.value);if(!Number.isFinite(n)||n<0||(key==='efficiency'&&n<=0)||(key==='tankCapacity'&&n<=0)|| (key==='taxRate'&&n>100)){el.value=state.settings[key];showToast('Valor no válido');return;}state.settings[key]=n;if(key==='initialLiters'&&n>state.settings.tankCapacity){state.settings.initialLiters=state.settings.tankCapacity;el.value=state.settings.initialLiters;}save();showToast('Parámetro actualizado');});});
- $('settingsToggle').onclick=()=>{$('settingsModalBackdrop').classList.add('open');};
- $('closeSettingsButton').onclick=()=>$('settingsModalBackdrop').classList.remove('open');
- $('settingsModalBackdrop').addEventListener('click',e=>{if(e.target===$('settingsModalBackdrop'))$('settingsModalBackdrop').classList.remove('open');});
- $('resetButton').onclick=()=>{if(confirm('Esto eliminará todas las entregas y restaurará los parámetros iniciales. ¿Continuar?')){state=migrate(structuredClone(defaults));Object.entries(fields).forEach(([id,key])=>$(id).value=state.settings[key]);save();showToast('Datos restablecidos');}};
- function download(name,content,type){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([content],{type}));a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);}
- $('exportJson').onclick=()=>download('respaldo-entregas-uber.json',JSON.stringify(state,null,2),'application/json');
- $('exportCsv').onclick=()=>{const head=['fecha','distancia_km','tarifa_clp','propina_exenta_clp','retencion_sii_clp','ingreso_clp','combustible_clp','ganancia_clp','cantidad_entregas'];const lines=[head.join(';'),...state.orders.map(o=>{const c=calc(o);return [o.createdAt,o.distance,o.fare,c.tip.toFixed(2),c.tax.toFixed(2),(c.subtotal+c.tip).toFixed(2),c.fuel.toFixed(2),c.profit.toFixed(2),deliveryCount(o)].join(';')})];download('entregas-uber.csv','\ufeff'+lines.join('\n'),'text/csv;charset=utf-8');};
- $('importButton').onclick=()=>$('importFile').click();
- $('importFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const v=JSON.parse(await file.text());if(!v.settings||!Array.isArray(v.orders))throw Error();state=migrate(v);save();Object.entries(fields).forEach(([id,key])=>$(id).value=state.settings[key]);showToast('Respaldo importado');}catch(err){showToast('El archivo no es un respaldo válido');}e.target.value='';};
- $('addIncentiveButton').onclick=()=>{
-  $('incentiveForm').reset();$('incentiveStart').value=localDateInput();$('incentiveEnd').value=localDateInput();$('incentiveError').textContent='';
-  $('incentiveModalBackdrop').classList.add('open');$('incentiveTarget').focus({preventScroll:true});
- };
- $('cancelIncentiveButton').onclick=()=>$('incentiveModalBackdrop').classList.remove('open');
- $('incentiveModalBackdrop').addEventListener('click',e=>{if(e.target===$('incentiveModalBackdrop'))$('incentiveModalBackdrop').classList.remove('open');});
- $('incentiveForm').addEventListener('submit',e=>{
-  e.preventDefault();const promotion={id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),target:Number($('incentiveTarget').value),amount:Number($('incentiveAmount').value),startDate:$('incentiveStart').value,endDate:$('incentiveEnd').value,taxRate:state.settings.taxRate};
-  if(!$('incentiveForm').checkValidity()||!Number.isSafeInteger(promotion.target)||promotion.target<1||!Number.isFinite(promotion.amount)||promotion.amount<=0||!incentiveRange(promotion)){
-   $('incentiveError').textContent='Ingresa una cantidad entera positiva, un monto válido y fechas en orden.';$('incentiveForm').scrollTop=$('incentiveForm').scrollHeight;return;
-  }
-  state.incentives.push(promotion);save();$('incentiveModalBackdrop').classList.remove('open');showToast('Incentivo guardado');
- });
- // Refresh date-bound summaries after midnight or when returning to the app.
- setInterval(()=>{renderWeeklyAndIncentives();renderJourneyActions();},60000);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
- let modalBaseHeight=window.innerHeight,modalBaseWidth=window.innerWidth;
- function syncModalViewport(){
-  const viewport=window.visualViewport,focused=document.activeElement?.matches('input,textarea,select');
-  if(!focused||window.innerWidth!==modalBaseWidth){modalBaseHeight=window.innerHeight;modalBaseWidth=window.innerWidth;}
-  const height=viewport?.height||window.innerHeight;
-  document.documentElement.style.setProperty('--modal-viewport-top',(viewport?.offsetTop||0)+'px');
-  document.documentElement.style.setProperty('--modal-viewport-height',height+'px');
-  document.documentElement.style.setProperty('--modal-available-height',Math.min(modalBaseHeight/2,height)+'px');
-  if(focused&&document.activeElement.closest('.modal-backdrop.open')){
-   const field=document.activeElement,modal=field.closest('.modal'),bounds=modal.getBoundingClientRect(),rect=field.getBoundingClientRect();
-   const actions=modal.querySelector('.modal-actions'),bottom=bounds.bottom-(actions?.offsetHeight||0)-12;
-   if(rect.bottom>bottom)modal.scrollTop+=rect.bottom-bottom;
-   else if(rect.top<bounds.top+12)modal.scrollTop-=bounds.top+12-rect.top;
-  }
- }
- document.querySelectorAll('.modal-backdrop').forEach(backdrop=>{
-  new MutationObserver(()=>{document.body.classList.toggle('modal-open',Boolean(document.querySelector('.modal-backdrop.open')));syncModalViewport();}).observe(backdrop,{attributes:true,attributeFilter:['class']});
- });
- window.addEventListener('resize',syncModalViewport);
- window.visualViewport?.addEventListener('resize',syncModalViewport);
- window.visualViewport?.addEventListener('scroll',syncModalViewport);
- document.addEventListener('focusin',()=>requestAnimationFrame(syncModalViewport));
- syncModalViewport();
- render();
-})();
-</script>
+  <button class="fab" id="addButton"><svg class="icon " aria-hidden="true" focusable="false">
+      <use href="#icon-plus" />
+    </svg><span>Agregar entrega</span></button>
+  <div class="modal-backdrop" id="modalBackdrop">
+    <form class="modal" id="orderForm">
+      <h2>Nueva entrega</h2>
+      <p>Ingresa los totales de la solicitud y cuántas entregas incluye. La cantidad no multiplica la tarifa ni la
+        distancia.</p>
+      <div class="settings-grid">
+        <label>Cantidad de entregas<input id="deliveryCountInput" type="number" min="1" step="1" inputmode="numeric"
+            value="1" required></label>
+        <label>Tarifa total (CLP)<input id="fareInput" type="number" min="1" step="1" placeholder="Ej. 1972"
+            required></label>
+        <label>Distancia (km)<input id="distanceInput" type="number" min="0.01" step="0.01" placeholder="Ej. 7,26"
+            required></label>
+        <label>Propina exenta (CLP)<input id="tipInput" type="number" min="0" step="1" value="0"
+            placeholder="Opcional"></label>
+      </div>
+      <div class="small" id="preview" style="margin-top:13px">Ingresa distancia y tarifa para ver la ganancia estimada.
+      </div>
+      <div class="modal-actions"><button type="button" class="secondary" id="cancelButton">Cancelar</button><button
+          type="submit" class="primary">Guardar entrega</button></div>
+    </form>
+  </div>
+  <div class="modal-backdrop" id="journeyModalBackdrop">
+    <form class="modal" id="journeyForm">
+      <h2>Nueva jornada</h2>
+      <p>Configura los parámetros iniciales. Los litros disponibles se proponen desde el combustible restante de la
+        última jornada finalizada y puedes corregirlos.</p>
+      <div class="settings-grid">
+        <label>Odómetro inicial (km)<input id="newStart" type="number" min="0" step="0.01" required></label>
+        <label>Litros disponibles<input id="newLiters" type="number" min="0" step="0.01" required></label>
+        <label>Precio combustible (CLP/L)<input id="newFuelPrice" type="number" min="0" step="1" required></label>
+        <label>Ganancia objetivo (CLP)<input id="newGoal" type="number" min="0" step="1" required></label>
+        <label>Retención SII (%)<input id="newTaxRate" type="number" min="0" max="100" step="0.01" value="15.25"
+            required></label>
+        <label>Rendimiento (aproximación) (km/L)<input id="newEfficiency" type="number" min="0.1" step="0.1"
+            required></label>
+        <label>Capacidad estanque (L)<input id="newTank" type="number" min="0.1" step="0.1" required></label>
+      </div>
+      <div class="modal-actions"><button type="button" class="secondary"
+          id="cancelJourneyButton">Cancelar</button><button type="submit" class="primary">Iniciar jornada</button></div>
+    </form>
+  </div>
+  <div class="modal-backdrop" id="finishModalBackdrop">
+    <form class="modal" id="finishForm">
+      <h2>Finalizar jornada</h2>
+      <p>Confirma el odómetro final para recalcular todos los indicadores.</p><label>Odómetro final (km)<input
+          id="finishOdometer" type="number" min="0" step="0.01" required></label>
+      <div class="modal-actions"><button type="button" class="secondary"
+          id="cancelFinishButton">Cancelar</button><button type="submit" class="primary">Finalizar jornada</button>
+      </div>
+    </form>
+  </div>
+  <div class="modal-backdrop" id="odometerModalBackdrop">
+    <form class="modal" id="odometerForm">
+      <h2>Actualizar odómetro</h2>
+      <p>Ingresa la lectura actual del tablero de la motocicleta.</p><label>Odómetro actual (km)<input
+          id="currentOdometer" type="number" min="0" step="0.01" required></label>
+      <div class="modal-actions"><button type="button" class="secondary"
+          id="cancelOdometerButton">Cancelar</button><button type="submit" class="primary">Actualizar</button></div>
+    </form>
+  </div>
+  <div class="modal-backdrop" id="historyModalBackdrop">
+    <div class="modal">
+      <h2 id="historyTitle">Resumen de jornada</h2>
+      <div class="grid" id="historyMetrics"></div>
+      <div class="modal-actions"><button type="button" class="primary" id="closeHistoryButton">Cerrar</button></div>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="fuelModalBackdrop">
+    <form class="modal" id="fuelForm" role="dialog" aria-modal="true" aria-labelledby="fuelTitle">
+      <h2 id="fuelTitle">Cargar combustible</h2>
+      <p>Registra la carga y el odómetro actual. El importe comprado se muestra separado del gasto por consumo estimado.
+      </p>
+      <div class="settings-grid">
+        <label>Litros cargados (L)<input id="refuelLiters" type="number" min="0.01" step="0.01" inputmode="decimal"
+            required></label>
+        <label>Precio (CLP/L)<input id="refuelPrice" type="number" min="0" step="1" inputmode="numeric"
+            required></label>
+        <label>Odómetro actual (km)<input id="refuelOdometer" type="number" min="0" step="0.01" inputmode="decimal"
+            required></label>
+      </div>
+      <div class="small red" id="refuelError" role="alert" style="margin-top:10px"></div>
+      <div class="small" id="refuelPreview" style="margin-top:10px" aria-live="polite"></div>
+      <div class="modal-actions"><button type="button" class="secondary" id="cancelFuelButton">Cancelar</button><button
+          type="submit" class="primary">Guardar carga</button></div>
+    </form>
+  </div>
+  <div class="modal-backdrop" id="incentiveModalBackdrop">
+    <form class="modal" id="incentiveForm" role="dialog" aria-modal="true" aria-labelledby="incentiveTitle">
+      <h2 id="incentiveTitle">Añadir incentivo</h2>
+      <p>Se cuentan las entregas entre ambas fechas, inclusive, en la hora local. Al completar la meta, el monto se suma
+        automáticamente con la retención configurada.</p>
+      <div class="settings-grid">
+        <label>Cantidad de viajes / entregas<input id="incentiveTarget" type="number" min="1" step="1"
+            inputmode="numeric" required></label>
+        <label>Monto del incentivo (CLP)<input id="incentiveAmount" type="number" min="1" step="1" inputmode="numeric"
+            required></label>
+        <label>Fecha de inicio<input id="incentiveStart" type="date" required></label>
+        <label>Fecha de término<input id="incentiveEnd" type="date" required></label>
+      </div>
+      <div class="small red" id="incentiveError" role="alert" style="margin-top:10px"></div>
+      <div class="modal-actions"><button type="button" class="secondary"
+          id="cancelIncentiveButton">Cancelar</button><button type="submit" class="primary">Guardar incentivo</button>
+      </div>
+    </form>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    (() => {
+      const KEY = 'uber_delivery_tracker_v2';
+      const defaults = { settings: { fuelPrice: 1499, efficiency: 28, initialLiters: 3.34, tankCapacity: 12, taxRate: 15.25, odometer: 877.2, goal: 20000 }, orders: [], journeys: [], incentives: [], activeJourney: null };
+      let state = load();
+      let editingId = null;
+      const $ = id => document.getElementById(id);
+      const icon = name => '<svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-' + name + '"/></svg>';
+      const money = n => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(Math.round(n || 0));
+      const number = n => new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number.isFinite(n) ? n : 0);
+      const dateLabel = d => new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(d));
+      const costPerKm = () => state.settings.fuelPrice / state.settings.efficiency;
+      function newJourney(start, settings = defaults.settings) { return { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), start: Number(start) || 0, end: null, startedAt: new Date().toISOString(), closedAt: null, refuels: [], settings: { ...settings } }; }
+      function deliveryCount(o) { return Number.isSafeInteger(o.deliveryCount) && o.deliveryCount > 0 ? o.deliveryCount : 1; }
+      function localDateInput(date = new Date()) { return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0'); }
+      function dateStart(value) {
+        if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+        const [year, month, day] = value.split('-').map(Number), date = new Date(0);
+        date.setFullYear(year, month - 1, day); date.setHours(0, 0, 0, 0);
+        return localDateInput(date) === value ? date : null;
+      }
+      function incentiveRange(p) { const start = dateStart(p.startDate), end = dateStart(p.endDate); if (!start || !end || end < start) return null; end.setDate(end.getDate() + 1); return { start, end }; }
+      function migrate(v) {
+        const s = { ...defaults, settings: { ...defaults.settings, ...(v.settings || {}) }, orders: Array.isArray(v.orders) ? v.orders : [], journeys: Array.isArray(v.journeys) ? v.journeys : [], activeJourney: v.activeJourney || null, incentives: Array.isArray(v.incentives) ? v.incentives : [] };
+        s.orders = s.orders.map(o => ({ ...o, tip: Number(o.tip) || 0 }));
+        if (!s.activeJourney) { s.activeJourney = newJourney(s.settings.odometer, s.settings); }
+        const normalizeJourney = j => ({ ...j, settings: { ...s.settings, ...j.settings }, refuels: (Array.isArray(j.refuels) ? j.refuels : []).filter(r => r && Number.isFinite(r.liters) && r.liters > 0 && Number.isFinite(r.price) && r.price >= 0 && Number.isFinite(r.odometer) && typeof r.createdAt === 'string' && Number.isFinite(Date.parse(r.createdAt))) });
+        s.activeJourney = normalizeJourney(s.activeJourney);
+        s.journeys = s.journeys.map(normalizeJourney);
+        s.orders = s.orders.map(o => {
+          const journeyId = o.journeyId || s.activeJourney.id, j = [s.activeJourney, ...s.journeys].find(j => j.id === journeyId);
+          return { ...o, journeyId, deliveryCount: deliveryCount(o), taxRate: Number.isFinite(o.taxRate) && o.taxRate >= 0 && o.taxRate <= 100 ? o.taxRate : (j?.settings.taxRate ?? s.settings.taxRate) };
+        });
+        s.incentives = s.incentives.filter(p => p && Number.isSafeInteger(p.target) && p.target > 0 && Number.isFinite(p.amount) && p.amount > 0 && incentiveRange(p)).map(p => ({ ...p, taxRate: Number.isFinite(p.taxRate) && p.taxRate >= 0 && p.taxRate <= 100 ? p.taxRate : s.settings.taxRate }));
+        return s;
+      }
+      function load() { try { const v = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem('uber_delivery_tracker_v1')); if (v && typeof v === 'object') return migrate(v); } catch (e) { } return migrate(defaults); }
+      function save() { for (const j of [...state.journeys, active()]) { if (j.closedAt) j.remainingLiters = calculateRemaining(j); } localStorage.setItem(KEY, JSON.stringify(state)); render(); }
+      function active() { return state.activeJourney; }
+      function loadedLiters() { return Number(state.settings.initialLiters) + active().refuels.reduce((sum, r) => sum + r.liters, 0); }
+      function journeySettings(j) { return j?.closedAt ? (j.settings || state.settings) : state.settings; }
+      function calc(o) { const j = o.journeyId === active().id ? active() : state.journeys.find(j => j.id === o.journeyId), s = journeySettings(j), rate = o.taxRate ?? s.taxRate, tax = o.fare * rate / 100, subtotal = o.fare - tax, fuel = o.distance * s.fuelPrice / s.efficiency; return { tax, subtotal, fuel, tip: Number(o.tip) || 0, profit: subtotal + (Number(o.tip) || 0) - fuel }; }
+      function incentiveStatus(p, now = new Date()) {
+        const range = incentiveRange(p); let completed = 0, completion = null;
+        const orders = state.orders.filter(o => { const date = new Date(o.createdAt); return date >= range.start && date < range.end && date <= now; }).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        for (const o of orders) { completed += deliveryCount(o); if (!completion && completed >= p.target) completion = o; }
+        return { promotion: p, completed, completion, percent: Math.min(100, completed / p.target * 100), active: now >= range.start && now < range.end, upcoming: now < range.start, net: p.amount * (1 - p.taxRate / 100) };
+      }
+      function incentiveStatuses(now = new Date()) { return state.incentives.map(p => incentiveStatus(p, now)); }
+      function totals(j = active()) {
+        let distance = 0, fare = 0, tax = 0, tips = 0, gross = 0;
+        state.orders.filter(o => o.journeyId === j.id).forEach(o => { const c = calc(o); distance += o.distance; fare += o.fare; tax += c.tax; tips += c.tip; gross += c.subtotal + c.tip; });
+        for (const reward of incentiveStatuses().filter(r => r.completion?.journeyId === j.id)) { fare += reward.promotion.amount; tax += reward.promotion.amount - reward.net; gross += reward.net; }
+        const s = journeySettings(j), total = j.end == null ? null : Math.max(distance, j.end - j.start + (Number.isFinite(j.orderDistanceAtReading) ? Math.max(0, distance - j.orderDistanceAtReading) : 0)), outside = total == null ? null : total - distance;
+        const liters = (total == null ? distance : total) / s.efficiency, fuel = liters * s.fuelPrice;
+        return { distance, fare, tax, fuel, tips, profit: gross - fuel, total, outside, liters };
+      }
+      function calculateRemaining(j) {
+        const s = journeySettings(j), loaded = Number(s.initialLiters) + j.refuels.reduce((sum, r) => sum + r.liters, 0);
+        return Math.max(0, loaded - totals(j).liters);
+      }
+      function remainingForJourney(j) { return j.closedAt && Number.isFinite(j.remainingLiters) ? j.remainingLiters : calculateRemaining(j); }
+      function latestFinishedJourney() { return [...state.journeys, ...(active().closedAt ? [active()] : [])].filter(j => j.closedAt).sort((a, b) => new Date(b.closedAt) - new Date(a.closedAt))[0]; }
+      function setProgress(bar, value, label) {
+        const percent = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0;
+        bar.style.width = percent + '%';
+        // Keep yellow at the track midpoint, regardless of the filled width.
+        bar.style.setProperty('--progress-scale', (percent > 0 ? 10000 / percent : 10000) + '%');
+        const track = bar.parentElement;
+        track.setAttribute('role', 'progressbar');
+        track.setAttribute('aria-label', label);
+        track.setAttribute('aria-valuemin', '0');
+        track.setAttribute('aria-valuemax', '100');
+        track.setAttribute('aria-valuenow', String(percent));
+      }
+      function weeklyDeliveryCounts(orders, start, end, now) {
+        const counts = Array(7).fill(0);
+        for (const order of orders) {
+          const date = new Date(order.createdAt);
+          if (date >= start && date < end && date <= now) counts[(date.getDay() + 6) % 7] += deliveryCount(order);
+        }
+        return counts;
+      }
+      function renderWeeklyDeliveries(start, end, now) {
+        const counts = weeklyDeliveryCounts(state.orders, start, end, now);
+        const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+        const names = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+        const maximum = Math.max(1, ...counts);
+        $('weeklyDeliveriesChart').innerHTML = counts.map((count, day) =>
+          `<div class="weekly-day" aria-label="${names[day]}: ${count} entregas"><strong aria-hidden="true">${count}</strong><div class="weekly-bar-track" aria-hidden="true"><div class="weekly-bar" style="height:${count / maximum * 100}%"></div></div><span aria-hidden="true">${days[day]}</span></div>`
+        ).join('');
+        const total = counts.reduce((sum, count) => sum + count, 0);
+        $('weeklyDeliveriesTotal').textContent = total ? total + ' entregas esta semana' : 'Todavía no hay entregas esta semana.';
+      }
+      function renderWeeklyAndIncentives() {
+        const now = new Date(), start = new Date(now); start.setHours(0, 0, 0, 0); start.setDate(start.getDate() - (start.getDay() + 6) % 7);
+        const end = new Date(start); end.setDate(end.getDate() + 7); const statuses = incentiveStatuses(now);
+        let income = state.orders.reduce((sum, o) => { const date = new Date(o.createdAt); return date >= start && date < end && date <= now ? sum + calc(o).subtotal + calc(o).tip : sum; }, 0);
+        for (const reward of statuses) { if (reward.completion) { const date = new Date(reward.completion.createdAt); if (date >= start && date < end) income += reward.net; } }
+        $('weeklyIncome').textContent = money(income);
+        const last = new Date(end); last.setDate(last.getDate() - 1); const format = new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: '2-digit' });
+        $('weeklyPeriod').textContent = format.format(start) + ' – ' + format.format(last) + ' · Lunes a domingo';
+        renderWeeklyDeliveries(start, end, now);
+        $('incentiveList').replaceChildren();
+        if (!statuses.length) { $('incentiveList').textContent = 'Todavía no hay incentivos. Añade una promoción para seguir su progreso.'; return; }
+        for (const item of statuses) {
+          const p = item.promotion, card = document.createElement('article'); card.className = 'incentive-card';
+          const title = document.createElement('strong'); title.textContent = money(p.amount) + ' por ' + p.target + ' entregas'; const badge = document.createElement('span'); badge.className = 'incentive-icon'; badge.innerHTML = icon('gift'); card.append(badge, title);
+          const period = document.createElement('div'); period.className = 'small'; period.textContent = p.startDate + ' → ' + p.endDate; card.append(period);
+          const status = document.createElement('div'); status.className = item.completion ? 'green' : 'small'; status.textContent = item.completion ? 'Completado · ' + money(item.net) + ' después de SII, incluido en ganancias' : item.upcoming ? 'Programado' : item.active ? 'Activo' : 'Finalizado sin completar'; card.append(status);
+          const progress = document.createElement('div'); progress.className = 'metric-sub'; progress.textContent = item.completed + ' / ' + p.target + ' entregas · ' + Math.floor(item.percent) + '%'; card.append(progress);
+          const track = document.createElement('div'); track.className = 'progress-wrap'; track.setAttribute('role', 'progressbar'); track.setAttribute('aria-label', 'Progreso del incentivo de ' + money(p.amount)); track.setAttribute('aria-valuemin', '0'); track.setAttribute('aria-valuemax', String(p.target)); track.setAttribute('aria-valuenow', String(Math.min(item.completed, p.target)));
+          const bar = document.createElement('div'); bar.className = 'progress'; track.append(bar); setProgress(bar, item.percent, 'Progreso del incentivo de ' + money(p.amount)); card.append(track); $('incentiveList').append(card);
+        }
+      }
+      function recalibrateEfficiency() {
+        const j = active(), loaded = loadedLiters();
+        if (j.end == null || loaded <= 0) return false;
+        const km = Math.max(0, j.end - j.start), estimated = km / state.settings.efficiency;
+        if (estimated >= loaded && km > 0) { state.settings.efficiency = km / loaded; return true; }
+        return false;
+      }
+      function todayJourney() {
+        const today = localDateInput();
+        if (localDateInput(new Date(active().startedAt)) === today) return active();
+        return state.journeys.filter(j => localDateInput(new Date(j.startedAt)) === today).sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))[0];
+      }
+      function renderJourneyActions() {
+        const closed = Boolean(active().closedAt), today = todayJourney(), button = $('createJourneyButton');
+        $('finishJourneyButton').disabled = closed; $('addButton').disabled = closed; $('updateOdometer').disabled = closed;
+        button.disabled = Boolean(today && !today.closedAt);
+        const label = today ? (today.closedAt ? 'Reanudar jornada' : 'Jornada en curso') : 'Nueva jornada';
+        button.innerHTML = icon(today ? (today.closedAt ? 'play' : 'check') : 'plus') + (today ? '<span>' + label + '</span>' : '');
+        $('sessionBadge').innerHTML = icon(closed ? 'check' : 'route') + '<span>' + (closed ? 'Jornada finalizada' : 'Jornada en curso') + '</span>'; button.className = today ? 'secondary' : 'icon-btn'; button.setAttribute('aria-label', label); button.title = label;
+      }
+      function resumeTodayJourney() {
+        const journey = todayJourney(); if (!journey) return false;
+        if (!journey.closedAt) { showToast('La jornada de hoy ya está en curso'); return true; }
+        state.activeJourney = structuredClone(journey); state.settings = { ...state.settings, ...journey.settings };
+        active().closedAt = null; delete active().remainingLiters;
+        state.journeys = state.journeys.filter(j => j.id !== journey.id);
+        Object.entries(fields).forEach(([id, key]) => $(id).value = state.settings[key]);
+        save(); showToast('Jornada de hoy reanudada'); return true;
+      }
+      function render() {
+        const s = state.settings, t = totals(), orders = state.orders.filter(o => o.journeyId === active().id), count = orders.reduce((sum, o) => sum + deliveryCount(o), 0), remainingLiters = Math.max(0, loadedLiters() - t.liters);
+        const remainingKm = remainingLiters * s.efficiency, initialKm = s.initialLiters * s.efficiency;
+        $('autonomy').textContent = number(remainingKm) + ' km';
+        const inReserve = remainingLiters <= 1;
+        $('fuelLeft').textContent = 'Combustible restante: ' + number(remainingLiters) + ' L' + (inReserve ? ' · Reserva' : '');
+        setProgress($('fuelProgress'), s.tankCapacity > 0 ? remainingLiters / s.tankCapacity * 100 : 0, 'Autonomía disponible respecto al estanque lleno');
+        $('fuelProgress').classList.toggle('is-reserve', inReserve);
+        $('fuelProgress').parentElement.setAttribute('aria-valuetext', number(remainingLiters) + ' de ' + number(s.tankCapacity) + ' litros' + (inReserve ? ' · Reserva' : ''));
+        const refuels = active().refuels, refuelLiters = refuels.reduce((sum, r) => sum + r.liters, 0), refuelCost = refuels.reduce((sum, r) => sum + r.liters * r.price, 0);
+        $('addFuelButton').disabled = Boolean(active().closedAt);
+        $('refuelSummary').textContent = refuels.length + ' cargas · ' + number(refuelLiters) + ' L · Comprado: ' + money(refuelCost);
+        $('refuelHistory').textContent = refuels.length ? refuels.map(r => dateLabel(r.createdAt) + ' · ' + number(r.liters) + ' L · ' + money(r.liters * r.price) + ' · ' + number(r.odometer) + ' km').join(' / ') : (active().closedAt ? 'Jornada finalizada. Inicia una nueva para registrar cargas.' : 'Todavía no hay cargas durante esta jornada.');
+        renderJourneyActions();
+        $('count').textContent = count;
+        $('requestCount').textContent = orders.length + ' solicitudes registradas';
+        renderWeeklyAndIncentives();
+        $('grossGain').textContent = money(t.fare + t.tips);
+        $('fuelCost').textContent = money(t.fuel);
+        const orderFuel = t.distance * costPerKm(), outsideFuel = Math.max(0, t.outside || 0) * costPerKm();
+        $('fuelBreakdown').textContent = 'Pedidos: ' + money(orderFuel) + ' · Fuera: ' + money(outsideFuel);
+        $('goalValue').innerHTML = money(t.profit) + '<span class="goal-target">/' + money(s.goal) + '</span>';
+        $('goalSub').textContent = 'Después de SII, combustible y propinas'; setProgress($('goalProgress'), s.goal > 0 ? t.profit / s.goal * 100 : 0, 'Avance de la ganancia objetivo');
+        $('totalDistance').textContent = (t.total == null ? number(t.distance) : number(t.total)) + ' km';
+        $('distanceBreakdown').textContent = 'Pedidos: ' + number(t.distance) + ' · Fuera: ' + (t.outside == null ? '--' : number(Math.max(0, t.outside))) + ' km';
+        $('consumption').textContent = (t.total > 0 ? number(t.total / t.liters) : '--') + ' km/L';
+        $('litersConsumed').textContent = 'Litros consumidos: ' + (t.total == null ? '--' : number(t.liters) + ' L');
+        $('derived').textContent = 'Costo por km: ' + money(costPerKm()) + ' · Autonomía inicial: ' + number(initialKm) + ' km · Odómetro estimado: ' + number(active().start + (t.total || t.distance)) + ' km';
+        $('emptyState').style.display = count ? 'none' : 'block';
+        const rows = orders.slice().reverse();
+        $('tableBody').innerHTML = rows.map((o, i) => { const c = calc(o); return `<tr><td>${orders.length - i}</td><td>${dateLabel(o.createdAt)}</td><td>${deliveryCount(o)}</td><td>${number(o.distance)} km</td><td>${money(o.fare)}</td><td class="green">${money(c.tip)}</td><td>${money(-c.tax)}</td><td>${money(c.subtotal + c.tip)}</td><td>${money(-c.fuel)}</td><td class="${c.profit >= 0 ? 'green' : 'red'}">${money(c.profit)}</td><td><button class="secondary" data-edit="${o.id}">${icon('edit')}<span>Editar</span></button><button class="delete" data-delete="${o.id}" aria-label="Eliminar">${icon('close')}</button></td></tr>` }).join('');
+        $('mobileList').innerHTML = rows.map((o, i) => { const c = calc(o); return `<article class="order-card"><div class="order-top"><div><span class="order-number">Solicitud ${orders.length - i} · ${deliveryCount(o)} entregas</span><div class="order-date">${dateLabel(o.createdAt)}</div></div><div><button class="secondary" data-edit="${o.id}">${icon('edit')}<span>Editar</span></button><button class="secondary" data-duplicate="${o.id}" ${active().closedAt ? 'disabled' : ''}>${icon('copy')}<span>Duplicar</span></button><button class="delete" data-delete="${o.id}" aria-label="Eliminar entrega">${icon('close')}</button></div></div><div class="order-main"><div class="order-item"><span>Distancia</span><strong>${number(o.distance)} km</strong></div><div class="order-item"><span>Tarifa</span><strong>${money(o.fare)}</strong></div><div class="order-item"><span>Propina exenta</span><strong class="green">${money(c.tip)}</strong></div><div class="order-item"><span>Retención SII</span><strong>${money(-c.tax)}</strong></div><div class="order-item"><span>Ingreso</span><strong>${money(c.subtotal + c.tip)}</strong></div><div class="order-item"><span>Ganancia</span><strong class="${c.profit >= 0 ? 'green' : 'red'}">${money(c.profit)}</strong></div></div></article>` }).join('');
+        $('journeyHistory').innerHTML = state.journeys.length ? state.journeys.slice().reverse().map(j => { const net = totals(j).profit; return `<div class="history-row"><strong>${new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(j.startedAt))}</strong><strong>${money(net)}</strong><button class="icon-btn" data-history="${j.id}" aria-label="Ver jornada">${icon('arrow')}</button></div>` }).join('') : 'Todavía no hay jornadas cerradas.';
+      }
+      function showToast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 2100); }
+      function openModal(o = null) { if (!o && active().closedAt) { showToast('Reanuda o inicia una jornada para agregar entregas'); return; } editingId = o?.id || null; $('modalBackdrop').classList.add('open'); $('distanceInput').value = o?.distance || ''; $('fareInput').value = o?.fare || ''; $('tipInput').value = o?.tip || 0; $('deliveryCountInput').value = o ? deliveryCount(o) : 1; $('orderForm').querySelector('h2').textContent = editingId ? 'Editar entrega' : 'Nueva entrega'; $('preview').textContent = 'Ingresa distancia, tarifa y propina para ver la ganancia estimada.'; $('distanceInput').focus(); }
+      function closeModal() { $('modalBackdrop').classList.remove('open'); }
+      $('addButton').onclick = () => openModal(); $('cancelButton').onclick = closeModal;
+      $('modalBackdrop').addEventListener('click', e => { if (e.target === $('modalBackdrop')) closeModal(); });
+      $('orderForm').addEventListener('submit', e => { e.preventDefault(); if (!editingId && active().closedAt) { showToast('La jornada está finalizada'); return; } const distance = Number($('distanceInput').value), fare = Number($('fareInput').value), tip = Number($('tipInput').value) || 0, quantity = Number($('deliveryCountInput').value); if (!Number.isSafeInteger(quantity) || quantity < 1 || ![distance, fare, tip].every(Number.isFinite) || !(distance > 0) || !(fare > 0) || tip < 0) { showToast('Ingresa valores válidos'); return; } if (editingId) { const o = state.orders.find(x => x.id === editingId); if (o) Object.assign(o, { distance, fare, tip, deliveryCount: quantity }); } else state.orders.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), distance, fare, tip, deliveryCount: quantity, taxRate: state.settings.taxRate, createdAt: new Date().toISOString(), journeyId: active().id }); save(); closeModal(); showToast(editingId ? 'Entrega actualizada' : 'Entrega guardada'); editingId = null; });
+      function updatePreview() { const d = Number($('distanceInput').value), f = Number($('fareInput').value), tip = Number($('tipInput').value) || 0; if (d > 0 && f > 0) { const original = editingId ? state.orders.find(o => o.id === editingId) : null, c = calc({ ...original, distance: d, fare: f, tip }); $('preview').textContent = `Retención: ${money(c.tax)} · Propina exenta: ${money(tip)} · Combustible: ${money(c.fuel)} · Ganancia: ${money(c.profit)}`; } else $('preview').textContent = 'Ingresa distancia, tarifa y propina para ver la ganancia estimada.'; }
+      $('distanceInput').addEventListener('input', updatePreview); $('fareInput').addEventListener('input', updatePreview); $('tipInput').addEventListener('input', updatePreview);
+      function fuelReadingMinimum() { const j = active(); return Math.max(j.start + (totals().total ?? totals().distance), j.end ?? j.start, ...j.refuels.map(r => r.odometer)); }
+      function showFuelError(message) { $('refuelError').textContent = message; $('fuelForm').scrollTop = $('fuelForm').scrollHeight; }
+      function updateFuelPreview() {
+        const liters = Number($('refuelLiters').value), price = Number($('refuelPrice').value), odometer = Number($('refuelOdometer').value);
+        const remaining = Math.max(0, loadedLiters() - Math.max(0, odometer - active().start) / state.settings.efficiency);
+        $('refuelPreview').textContent = 'Importe: ' + money(liters * price) + ' · Espacio estimado: ' + number(Math.max(0, state.settings.tankCapacity - remaining)) + ' L';
+      }
+      $('addFuelButton').onclick = () => {
+        if (active().closedAt) { showToast('Inicia una nueva jornada para cargar combustible'); return; }
+        $('fuelForm').reset(); $('refuelError').textContent = ''; $('refuelPrice').value = state.settings.fuelPrice;
+        $('refuelOdometer').value = fuelReadingMinimum().toFixed(2); updateFuelPreview();
+        $('fuelModalBackdrop').classList.add('open'); $('refuelLiters').focus({ preventScroll: true });
+      };
+      $('cancelFuelButton').onclick = () => $('fuelModalBackdrop').classList.remove('open');
+      $('fuelModalBackdrop').addEventListener('click', e => { if (e.target === $('fuelModalBackdrop')) $('fuelModalBackdrop').classList.remove('open'); });
+      ['refuelLiters', 'refuelPrice', 'refuelOdometer'].forEach(id => $(id).addEventListener('input', updateFuelPreview));
+      $('fuelForm').addEventListener('submit', e => {
+        e.preventDefault();
+        if (active().closedAt) { showFuelError('La jornada ya está finalizada'); return; }
+        const liters = Number($('refuelLiters').value), price = Number($('refuelPrice').value), odometer = Number($('refuelOdometer').value);
+        if (!$('fuelForm').checkValidity() || ![liters, price, odometer].every(Number.isFinite) || liters <= 0 || price < 0 || odometer + 0.000001 < fuelReadingMinimum()) { showFuelError('Revisa litros, precio y odómetro; no puede retroceder'); return; }
+        const remaining = Math.max(0, loadedLiters() - (odometer - active().start) / state.settings.efficiency);
+        if (remaining + liters > state.settings.tankCapacity + 0.000001) { showFuelError('La carga supera el espacio del estanque. Revisa los litros y el odómetro.'); return; }
+        active().refuels.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), liters, price, odometer, createdAt: new Date().toISOString() });
+        active().orderDistanceAtReading = totals().distance; active().end = odometer;
+        save(); $('fuelModalBackdrop').classList.remove('open'); showToast('Carga de combustible registrada');
+      });
+      $('createJourneyButton').onclick = () => { if (resumeTodayJourney()) return; const s = state.settings, last = latestFinishedJourney();[['newStart', last?.end ?? fuelReadingMinimum()], ['newLiters', Number(remainingForJourney(last || active()).toFixed(2))], ['newFuelPrice', s.fuelPrice], ['newGoal', s.goal], ['newTaxRate', 15.25], ['newEfficiency', s.efficiency], ['newTank', s.tankCapacity]].forEach(([id, v]) => $(id).value = v); $('journeyModalBackdrop').classList.add('open'); };
+      $('cancelJourneyButton').onclick = () => $('journeyModalBackdrop').classList.remove('open');
+      $('journeyForm').addEventListener('submit', e => { e.preventDefault(); if (todayJourney()) { $('journeyModalBackdrop').classList.remove('open'); resumeTodayJourney(); return; } const start = Number($('newStart').value), liters = Number($('newLiters').value), tank = Number($('newTank').value); if (!Number.isFinite(start) || start < 0 || !Number.isFinite(liters) || liters < 0 || !Number.isFinite(tank) || tank <= 0 || liters > tank) { showToast('Revisa el odómetro y los litros disponibles; no pueden superar el estanque'); return; } state.settings = { ...state.settings, odometer: start, initialLiters: Number($('newLiters').value) || 0, fuelPrice: Number($('newFuelPrice').value) || 0, goal: Number($('newGoal').value) || 0, taxRate: Number($('newTaxRate').value), efficiency: Number($('newEfficiency').value) || 28, tankCapacity: Number($('newTank').value) || 12 }; state.activeJourney = newJourney(start, state.settings); Object.entries(fields).forEach(([id, key]) => $(id).value = state.settings[key]); $('journeyModalBackdrop').classList.remove('open'); save(); showToast('Nueva jornada iniciada'); });
+      $('updateOdometer').onclick = () => { if (active().closedAt) return; $('currentOdometer').value = fuelReadingMinimum().toFixed(2); $('odometerModalBackdrop').classList.add('open'); $('currentOdometer').focus(); };
+      $('cancelOdometerButton').onclick = () => $('odometerModalBackdrop').classList.remove('open');
+      $('odometerForm').addEventListener('submit', e => { e.preventDefault(); if (active().closedAt) { showToast('Reanuda la jornada antes de actualizar el odómetro'); return; } const v = Number($('currentOdometer').value), t = totals(); if (!Number.isFinite(v) || v + 0.000001 < fuelReadingMinimum()) { showToast('Odómetro no válido o menor que los km de pedidos'); return; } active().orderDistanceAtReading = t.distance; active().end = v; active().closedAt = null; const adjusted = recalibrateEfficiency(); $('odometerModalBackdrop').classList.remove('open'); save(); showToast(adjusted ? 'Odómetro actualizado y rendimiento recalculado' : 'Odómetro actualizado'); });
+      $('finishJourneyButton').onclick = () => { if (active().closedAt) return; $('finishOdometer').value = fuelReadingMinimum().toFixed(2); $('finishModalBackdrop').classList.add('open'); };
+      $('cancelFinishButton').onclick = () => $('finishModalBackdrop').classList.remove('open');
+      $('finishForm').addEventListener('submit', e => { e.preventDefault(); if (active().closedAt) { $('finishModalBackdrop').classList.remove('open'); return; } const end = Number($('finishOdometer').value), t = totals(); if (!Number.isFinite(end) || end + 0.000001 < fuelReadingMinimum()) { showToast('El odómetro final no es válido'); return; } active().orderDistanceAtReading = t.distance; active().end = end; active().closedAt = new Date().toISOString(); active().settings = { ...state.settings }; const adjusted = recalibrateEfficiency(); active().settings = { ...state.settings }; active().remainingLiters = Math.max(0, loadedLiters() - totals().liters); state.journeys = state.journeys.filter(j => j.id !== active().id); state.journeys.push(structuredClone(active())); $('finishModalBackdrop').classList.remove('open'); save(); showToast(adjusted ? 'Jornada finalizada y rendimiento recalculado' : 'Jornada finalizada'); });
+      $('closeHistoryButton').onclick = () => $('historyModalBackdrop').classList.remove('open');
+      document.addEventListener('click', e => { const del = e.target.closest('[data-delete]'), dup = e.target.closest('[data-duplicate]'), edit = e.target.closest('[data-edit]'), hist = e.target.closest('[data-history]'); if (del && confirm('¿Eliminar esta entrega?')) { state.orders = state.orders.filter(o => o.id !== del.dataset.delete); save(); showToast('Entrega eliminada'); } if (dup && active().closedAt) { showToast('Reanuda o inicia una jornada para agregar entregas'); return; } if (dup) { const o = state.orders.find(x => x.id === dup.dataset.duplicate); if (o) { state.orders.push({ ...o, taxRate: state.settings.taxRate, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), createdAt: new Date().toISOString() }); save(); showToast('Entrega duplicada'); } } if (edit) { const o = state.orders.find(x => x.id === edit.dataset.edit); if (o) openModal(o); } if (hist) { const j = state.journeys.find(x => x.id === hist.dataset.history); if (j) { const t = totals(j); $('historyTitle').textContent = 'Jornada del ' + dateLabel(j.startedAt); $('historyMetrics').innerHTML = [['Ganancia', t.fare + t.tips], ['Total neto', t.profit], ['Kilómetros', t.total], ['Fuera de pedido', t.outside], ['Combustible consumido', t.fuel], ['Cargas compradas', j.refuels.reduce((sum, r) => sum + r.liters * r.price, 0)], ['Consumo', t.total / t.liters]].map(x => `<div class="card"><div class="metric-label">${x[0]}</div><div class="metric-value">${typeof x[1] === 'number' && x[0].includes('Kilómetros') ? number(x[1]) + ' km' : x[0] === 'Fuera de pedido' ? number(x[1]) + ' kms' : x[0] === 'Consumo' ? number(x[1]) + ' km/L' : money(x[1])}</div></div>`).join(''); $('historyModalBackdrop').classList.add('open'); } } });
+      const fields = { fuelPrice: 'fuelPrice', efficiency: 'efficiency', initialLiters: 'initialLiters', tankCapacity: 'tankCapacity', taxRate: 'taxRate', odometer: 'odometer' };
+      Object.entries(fields).forEach(([id, key]) => { const el = $(id); el.value = state.settings[key]; el.addEventListener('change', () => { const n = Number(el.value); if (!Number.isFinite(n) || n < 0 || (key === 'efficiency' && n <= 0) || (key === 'tankCapacity' && n <= 0) || (key === 'taxRate' && n > 100)) { el.value = state.settings[key]; showToast('Valor no válido'); return; } state.settings[key] = n; if (key === 'initialLiters' && n > state.settings.tankCapacity) { state.settings.initialLiters = state.settings.tankCapacity; el.value = state.settings.initialLiters; } save(); showToast('Parámetro actualizado'); }); });
+      $('settingsToggle').onclick = () => { $('settingsModalBackdrop').classList.add('open'); };
+      $('closeSettingsButton').onclick = () => $('settingsModalBackdrop').classList.remove('open');
+      $('settingsModalBackdrop').addEventListener('click', e => { if (e.target === $('settingsModalBackdrop')) $('settingsModalBackdrop').classList.remove('open'); });
+      $('resetButton').onclick = () => { if (confirm('Esto eliminará todas las entregas y restaurará los parámetros iniciales. ¿Continuar?')) { state = migrate(structuredClone(defaults)); Object.entries(fields).forEach(([id, key]) => $(id).value = state.settings[key]); save(); showToast('Datos restablecidos'); } };
+      function download(name, content, type) { const a = document.createElement('a'), url = URL.createObjectURL(new Blob([content], { type })); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url); }
+      $('exportJson').onclick = () => download('respaldo-entregas-uber.json', JSON.stringify(state, null, 2), 'application/json');
+      $('exportCsv').onclick = () => { const head = ['fecha', 'distancia_km', 'tarifa_clp', 'propina_exenta_clp', 'retencion_sii_clp', 'ingreso_clp', 'combustible_clp', 'ganancia_clp', 'cantidad_entregas']; const lines = [head.join(';'), ...state.orders.map(o => { const c = calc(o); return [o.createdAt, o.distance, o.fare, c.tip.toFixed(2), c.tax.toFixed(2), (c.subtotal + c.tip).toFixed(2), c.fuel.toFixed(2), c.profit.toFixed(2), deliveryCount(o)].join(';') })]; download('entregas-uber.csv', '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8'); };
+      $('importButton').onclick = () => $('importFile').click();
+      $('importFile').onchange = async e => { const file = e.target.files[0]; if (!file) return; try { const v = JSON.parse(await file.text()); if (!v.settings || !Array.isArray(v.orders)) throw Error(); state = migrate(v); save(); Object.entries(fields).forEach(([id, key]) => $(id).value = state.settings[key]); showToast('Respaldo importado'); } catch (err) { showToast('El archivo no es un respaldo válido'); } e.target.value = ''; };
+      $('addIncentiveButton').onclick = () => {
+        $('incentiveForm').reset(); $('incentiveStart').value = localDateInput(); $('incentiveEnd').value = localDateInput(); $('incentiveError').textContent = '';
+        $('incentiveModalBackdrop').classList.add('open'); $('incentiveTarget').focus({ preventScroll: true });
+      };
+      $('cancelIncentiveButton').onclick = () => $('incentiveModalBackdrop').classList.remove('open');
+      $('incentiveModalBackdrop').addEventListener('click', e => { if (e.target === $('incentiveModalBackdrop')) $('incentiveModalBackdrop').classList.remove('open'); });
+      $('incentiveForm').addEventListener('submit', e => {
+        e.preventDefault(); const promotion = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), target: Number($('incentiveTarget').value), amount: Number($('incentiveAmount').value), startDate: $('incentiveStart').value, endDate: $('incentiveEnd').value, taxRate: state.settings.taxRate };
+        if (!$('incentiveForm').checkValidity() || !Number.isSafeInteger(promotion.target) || promotion.target < 1 || !Number.isFinite(promotion.amount) || promotion.amount <= 0 || !incentiveRange(promotion)) {
+          $('incentiveError').textContent = 'Ingresa una cantidad entera positiva, un monto válido y fechas en orden.'; $('incentiveForm').scrollTop = $('incentiveForm').scrollHeight; return;
+        }
+        state.incentives.push(promotion); save(); $('incentiveModalBackdrop').classList.remove('open'); showToast('Incentivo guardado');
+      });
+      // Refresh date-bound summaries after midnight or when returning to the app.
+      setInterval(() => { renderWeeklyAndIncentives(); renderJourneyActions(); }, 60000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
+      const mobileLayout = matchMedia('(max-width: 800px)');
+      const historyHome = $('historySection').parentElement;
+      function syncHistoryLayout() {
+        if (mobileLayout.matches) document.querySelector('.deliveries-panel').after($('historySection'));
+        else historyHome.append($('historySection'));
+      }
+      syncHistoryLayout();
+      mobileLayout.addEventListener('change', syncHistoryLayout);
+      function navigationContainer() { return mobileLayout.matches ? $('dashboardMain') : $('operations'); }
+      function activateNavigation(target) {
+        const container = navigationContainer(), link = document.querySelector('.nav-link[href="#' + target.id + '"]');
+        if (!container || !target) return;
+        document.querySelectorAll('.nav-link').forEach(item => item.removeAttribute('aria-current'));
+        link?.setAttribute('aria-current', 'page');
+        if (mobileLayout.matches && target.id === 'summarySection') {
+          container.scrollTo({ top: 0, behavior: 'smooth' });
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+        const top = target.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop - 12;
+        container.scrollTo({ top, behavior: 'smooth' });
+      }
+      document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', event => {
+        const target = document.querySelector(link.getAttribute('href')); if (!target) return;
+        event.preventDefault(); activateNavigation(target);
+      }));
+      let modalBaseHeight = window.innerHeight, modalBaseWidth = window.innerWidth;
+      function syncModalViewport() {
+        const viewport = window.visualViewport, focused = document.activeElement?.matches('input,textarea,select');
+        if (!focused || window.innerWidth !== modalBaseWidth) { modalBaseHeight = window.innerHeight; modalBaseWidth = window.innerWidth; }
+        const height = viewport?.height || window.innerHeight;
+        document.documentElement.style.setProperty('--modal-viewport-top', (viewport?.offsetTop || 0) + 'px');
+        document.documentElement.style.setProperty('--modal-viewport-height', height + 'px');
+        document.documentElement.style.setProperty('--modal-available-height', Math.min(modalBaseHeight / 2, height) + 'px');
+        if (focused && document.activeElement.closest('.modal-backdrop.open')) {
+          const field = document.activeElement, modal = field.closest('.modal'), bounds = modal.getBoundingClientRect(), rect = field.getBoundingClientRect();
+          const actions = modal.querySelector('.modal-actions'), bottom = bounds.bottom - (actions?.offsetHeight || 0) - 12;
+          if (rect.bottom > bottom) modal.scrollTop += rect.bottom - bottom;
+          else if (rect.top < bounds.top + 12) modal.scrollTop -= bounds.top + 12 - rect.top;
+        }
+      }
+      document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+        new MutationObserver(() => { document.body.classList.toggle('modal-open', Boolean(document.querySelector('.modal-backdrop.open'))); syncModalViewport(); }).observe(backdrop, { attributes: true, attributeFilter: ['class'] });
+      });
+      window.addEventListener('resize', syncModalViewport);
+      window.visualViewport?.addEventListener('resize', syncModalViewport);
+      window.visualViewport?.addEventListener('scroll', syncModalViewport);
+      document.addEventListener('focusin', () => requestAnimationFrame(syncModalViewport));
+      syncModalViewport();
+      render();
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => { });
+    })();
+  </script>
 </body>
+
 </html>

@@ -1,0 +1,781 @@
+{
+  "settings": {
+    "fuelPrice": 1499,
+    "efficiency": 30,
+    "initialLiters": 2.6401,
+    "tankCapacity": 12,
+    "taxRate": 15.25,
+    "odometer": 1450.8,
+    "goal": 25000
+  },
+  "orders": [
+    {
+      "id": "demo-2-1",
+      "distance": 2.5,
+      "fare": 2100,
+      "tip": 500,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-2",
+      "createdAt": "2026-11-02T10:15:00-03:00"
+    },
+    {
+      "id": "demo-2-2",
+      "distance": 3.3,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-2",
+      "createdAt": "2026-11-02T11:15:00-03:00"
+    },
+    {
+      "id": "demo-2-3",
+      "distance": 4.1,
+      "fare": 3000,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-2",
+      "createdAt": "2026-11-02T12:15:00-03:00"
+    },
+    {
+      "id": "demo-2-4",
+      "distance": 4.9,
+      "fare": 3450,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-2",
+      "createdAt": "2026-11-02T13:15:00-03:00"
+    },
+    {
+      "id": "demo-2-5",
+      "distance": 5.7,
+      "fare": 2100,
+      "tip": 0,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-2",
+      "createdAt": "2026-11-02T14:15:00-03:00"
+    },
+    {
+      "id": "demo-2-6",
+      "distance": 2.5,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-2",
+      "createdAt": "2026-11-02T15:15:00-03:00"
+    },
+    {
+      "id": "demo-3-1",
+      "distance": 2.5,
+      "fare": 2100,
+      "tip": 500,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-3",
+      "createdAt": "2026-11-03T10:15:00-03:00"
+    },
+    {
+      "id": "demo-3-2",
+      "distance": 3.3,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-3",
+      "createdAt": "2026-11-03T11:15:00-03:00"
+    },
+    {
+      "id": "demo-3-3",
+      "distance": 4.1,
+      "fare": 3000,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-3",
+      "createdAt": "2026-11-03T12:15:00-03:00"
+    },
+    {
+      "id": "demo-3-4",
+      "distance": 4.9,
+      "fare": 3450,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-3",
+      "createdAt": "2026-11-03T13:15:00-03:00"
+    },
+    {
+      "id": "demo-3-5",
+      "distance": 5.7,
+      "fare": 2100,
+      "tip": 0,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-3",
+      "createdAt": "2026-11-03T14:15:00-03:00"
+    },
+    {
+      "id": "demo-3-6",
+      "distance": 2.5,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-3",
+      "createdAt": "2026-11-03T15:15:00-03:00"
+    },
+    {
+      "id": "demo-3-7",
+      "distance": 3.3,
+      "fare": 3000,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-3",
+      "createdAt": "2026-11-03T16:15:00-03:00"
+    },
+    {
+      "id": "demo-3-8",
+      "distance": 4.1,
+      "fare": 3450,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-3",
+      "createdAt": "2026-11-03T17:15:00-03:00"
+    },
+    {
+      "id": "demo-4-1",
+      "distance": 2.5,
+      "fare": 2100,
+      "tip": 500,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-4",
+      "createdAt": "2026-11-04T10:15:00-03:00"
+    },
+    {
+      "id": "demo-4-2",
+      "distance": 3.3,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-4",
+      "createdAt": "2026-11-04T11:15:00-03:00"
+    },
+    {
+      "id": "demo-4-3",
+      "distance": 4.1,
+      "fare": 3000,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-4",
+      "createdAt": "2026-11-04T12:15:00-03:00"
+    },
+    {
+      "id": "demo-4-4",
+      "distance": 4.9,
+      "fare": 3450,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-4",
+      "createdAt": "2026-11-04T13:15:00-03:00"
+    },
+    {
+      "id": "demo-4-5",
+      "distance": 5.7,
+      "fare": 2100,
+      "tip": 0,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-4",
+      "createdAt": "2026-11-04T14:15:00-03:00"
+    },
+    {
+      "id": "demo-4-6",
+      "distance": 2.5,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-4",
+      "createdAt": "2026-11-04T15:15:00-03:00"
+    },
+    {
+      "id": "demo-4-7",
+      "distance": 3.3,
+      "fare": 3000,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-4",
+      "createdAt": "2026-11-04T16:15:00-03:00"
+    },
+    {
+      "id": "demo-5-1",
+      "distance": 2.5,
+      "fare": 2100,
+      "tip": 500,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-5",
+      "createdAt": "2026-11-05T10:15:00-03:00"
+    },
+    {
+      "id": "demo-5-2",
+      "distance": 3.3,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-5",
+      "createdAt": "2026-11-05T11:15:00-03:00"
+    },
+    {
+      "id": "demo-5-3",
+      "distance": 4.1,
+      "fare": 3000,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-5",
+      "createdAt": "2026-11-05T12:15:00-03:00"
+    },
+    {
+      "id": "demo-5-4",
+      "distance": 4.9,
+      "fare": 3450,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-5",
+      "createdAt": "2026-11-05T13:15:00-03:00"
+    },
+    {
+      "id": "demo-5-5",
+      "distance": 5.7,
+      "fare": 2100,
+      "tip": 0,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-5",
+      "createdAt": "2026-11-05T14:15:00-03:00"
+    },
+    {
+      "id": "demo-5-6",
+      "distance": 2.5,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-5",
+      "createdAt": "2026-11-05T15:15:00-03:00"
+    },
+    {
+      "id": "demo-5-7",
+      "distance": 3.3,
+      "fare": 3000,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-5",
+      "createdAt": "2026-11-05T16:15:00-03:00"
+    },
+    {
+      "id": "demo-5-8",
+      "distance": 4.1,
+      "fare": 3450,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-5",
+      "createdAt": "2026-11-05T17:15:00-03:00"
+    },
+    {
+      "id": "demo-5-9",
+      "distance": 4.9,
+      "fare": 2100,
+      "tip": 0,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-5",
+      "createdAt": "2026-11-05T18:15:00-03:00"
+    },
+    {
+      "id": "demo-5-10",
+      "distance": 5.7,
+      "fare": 2550,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-5",
+      "createdAt": "2026-11-05T19:15:00-03:00"
+    },
+    {
+      "id": "demo-6-1",
+      "distance": 2.5,
+      "fare": 2100,
+      "tip": 500,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-6",
+      "createdAt": "2026-11-06T10:15:00-03:00"
+    },
+    {
+      "id": "demo-6-2",
+      "distance": 3.3,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-6",
+      "createdAt": "2026-11-06T11:15:00-03:00"
+    },
+    {
+      "id": "demo-6-3",
+      "distance": 4.1,
+      "fare": 3000,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-6",
+      "createdAt": "2026-11-06T12:15:00-03:00"
+    },
+    {
+      "id": "demo-6-4",
+      "distance": 4.9,
+      "fare": 3450,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-6",
+      "createdAt": "2026-11-06T13:15:00-03:00"
+    },
+    {
+      "id": "demo-6-5",
+      "distance": 5.7,
+      "fare": 2100,
+      "tip": 0,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-6",
+      "createdAt": "2026-11-06T14:15:00-03:00"
+    },
+    {
+      "id": "demo-6-6",
+      "distance": 2.5,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-6",
+      "createdAt": "2026-11-06T15:15:00-03:00"
+    },
+    {
+      "id": "demo-6-7",
+      "distance": 3.3,
+      "fare": 3000,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-6",
+      "createdAt": "2026-11-06T16:15:00-03:00"
+    },
+    {
+      "id": "demo-6-8",
+      "distance": 4.1,
+      "fare": 3450,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-6",
+      "createdAt": "2026-11-06T17:15:00-03:00"
+    },
+    {
+      "id": "demo-6-9",
+      "distance": 4.9,
+      "fare": 2100,
+      "tip": 0,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-6",
+      "createdAt": "2026-11-06T18:15:00-03:00"
+    },
+    {
+      "id": "demo-7-1",
+      "distance": 2.5,
+      "fare": 2100,
+      "tip": 500,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T10:15:00-03:00"
+    },
+    {
+      "id": "demo-7-2",
+      "distance": 3.3,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T11:15:00-03:00"
+    },
+    {
+      "id": "demo-7-3",
+      "distance": 4.1,
+      "fare": 3000,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T12:15:00-03:00"
+    },
+    {
+      "id": "demo-7-4",
+      "distance": 4.9,
+      "fare": 3450,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T13:15:00-03:00"
+    },
+    {
+      "id": "demo-7-5",
+      "distance": 5.7,
+      "fare": 2100,
+      "tip": 0,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T14:15:00-03:00"
+    },
+    {
+      "id": "demo-7-6",
+      "distance": 2.5,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T15:15:00-03:00"
+    },
+    {
+      "id": "demo-7-7",
+      "distance": 3.3,
+      "fare": 3000,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T16:15:00-03:00"
+    },
+    {
+      "id": "demo-7-8",
+      "distance": 4.1,
+      "fare": 3450,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T17:15:00-03:00"
+    },
+    {
+      "id": "demo-7-9",
+      "distance": 4.9,
+      "fare": 2100,
+      "tip": 0,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T18:15:00-03:00"
+    },
+    {
+      "id": "demo-7-10",
+      "distance": 5.7,
+      "fare": 2550,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T19:15:00-03:00"
+    },
+    {
+      "id": "demo-7-11",
+      "distance": 2.5,
+      "fare": 3000,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T20:15:00-03:00"
+    },
+    {
+      "id": "demo-7-12",
+      "distance": 3.3,
+      "fare": 3450,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-7",
+      "createdAt": "2026-11-07T21:15:00-03:00"
+    },
+    {
+      "id": "demo-8-1",
+      "distance": 2.5,
+      "fare": 2100,
+      "tip": 500,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-8",
+      "createdAt": "2026-11-08T10:15:00-03:00"
+    },
+    {
+      "id": "demo-8-2",
+      "distance": 3.3,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-8",
+      "createdAt": "2026-11-08T11:15:00-03:00"
+    },
+    {
+      "id": "demo-8-3",
+      "distance": 4.1,
+      "fare": 3000,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-8",
+      "createdAt": "2026-11-08T12:15:00-03:00"
+    },
+    {
+      "id": "demo-8-4",
+      "distance": 4.9,
+      "fare": 3450,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-8",
+      "createdAt": "2026-11-08T13:15:00-03:00"
+    },
+    {
+      "id": "demo-8-5",
+      "distance": 5.7,
+      "fare": 2100,
+      "tip": 0,
+      "deliveryCount": 2,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-8",
+      "createdAt": "2026-11-08T14:15:00-03:00"
+    },
+    {
+      "id": "demo-8-6",
+      "distance": 2.5,
+      "fare": 2550,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-8",
+      "createdAt": "2026-11-08T15:15:00-03:00"
+    },
+    {
+      "id": "demo-8-7",
+      "distance": 3.3,
+      "fare": 3000,
+      "tip": 500,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-8",
+      "createdAt": "2026-11-08T16:15:00-03:00"
+    },
+    {
+      "id": "demo-8-8",
+      "distance": 4.1,
+      "fare": 3450,
+      "tip": 0,
+      "deliveryCount": 1,
+      "taxRate": 15.25,
+      "journeyId": "demo-jornada-8",
+      "createdAt": "2026-11-08T17:15:00-03:00"
+    }
+  ],
+  "journeys": [
+    {
+      "id": "demo-jornada-2",
+      "start": 1200,
+      "end": 1231.0,
+      "startedAt": "2026-11-02T08:30:00-03:00",
+      "closedAt": "2026-11-02T23:00:00-03:00",
+      "refuels": [],
+      "settings": {
+        "fuelPrice": 1499,
+        "efficiency": 30,
+        "initialLiters": 8,
+        "tankCapacity": 12,
+        "taxRate": 15.25,
+        "odometer": 1200,
+        "goal": 25000
+      },
+      "orderDistanceAtReading": 23.0,
+      "remainingLiters": 6.9667
+    },
+    {
+      "id": "demo-jornada-3",
+      "start": 1231.0,
+      "end": 1269.4,
+      "startedAt": "2026-11-03T08:30:00-03:00",
+      "closedAt": "2026-11-03T23:00:00-03:00",
+      "refuels": [],
+      "settings": {
+        "fuelPrice": 1499,
+        "efficiency": 30,
+        "initialLiters": 6.9667,
+        "tankCapacity": 12,
+        "taxRate": 15.25,
+        "odometer": 1231.0,
+        "goal": 25000
+      },
+      "orderDistanceAtReading": 30.4,
+      "remainingLiters": 5.6867
+    },
+    {
+      "id": "demo-jornada-4",
+      "start": 1269.4,
+      "end": 1303.7,
+      "startedAt": "2026-11-04T08:30:00-03:00",
+      "closedAt": "2026-11-04T23:00:00-03:00",
+      "refuels": [],
+      "settings": {
+        "fuelPrice": 1499,
+        "efficiency": 30,
+        "initialLiters": 5.6867,
+        "tankCapacity": 12,
+        "taxRate": 15.25,
+        "odometer": 1269.4,
+        "goal": 25000
+      },
+      "orderDistanceAtReading": 26.3,
+      "remainingLiters": 4.5434
+    },
+    {
+      "id": "demo-jornada-5",
+      "start": 1303.7,
+      "end": 1352.7,
+      "startedAt": "2026-11-05T08:30:00-03:00",
+      "closedAt": "2026-11-05T23:00:00-03:00",
+      "refuels": [
+        {
+          "id": "demo-carga-5",
+          "liters": 3,
+          "price": 1499,
+          "odometer": 1303.7,
+          "createdAt": "2026-11-05T09:00:00-03:00"
+        }
+      ],
+      "settings": {
+        "fuelPrice": 1499,
+        "efficiency": 30,
+        "initialLiters": 4.5434,
+        "tankCapacity": 12,
+        "taxRate": 15.25,
+        "odometer": 1303.7,
+        "goal": 25000
+      },
+      "orderDistanceAtReading": 41.0,
+      "remainingLiters": 5.9101
+    },
+    {
+      "id": "demo-jornada-6",
+      "start": 1352.7,
+      "end": 1396.0,
+      "startedAt": "2026-11-06T08:30:00-03:00",
+      "closedAt": "2026-11-06T23:00:00-03:00",
+      "refuels": [],
+      "settings": {
+        "fuelPrice": 1499,
+        "efficiency": 30,
+        "initialLiters": 5.9101,
+        "tankCapacity": 12,
+        "taxRate": 15.25,
+        "odometer": 1352.7,
+        "goal": 25000
+      },
+      "orderDistanceAtReading": 35.3,
+      "remainingLiters": 4.4668
+    },
+    {
+      "id": "demo-jornada-7",
+      "start": 1396.0,
+      "end": 1450.8,
+      "startedAt": "2026-11-07T08:30:00-03:00",
+      "closedAt": "2026-11-07T23:00:00-03:00",
+      "refuels": [],
+      "settings": {
+        "fuelPrice": 1499,
+        "efficiency": 30,
+        "initialLiters": 4.4668,
+        "tankCapacity": 12,
+        "taxRate": 15.25,
+        "odometer": 1396.0,
+        "goal": 25000
+      },
+      "orderDistanceAtReading": 46.8,
+      "remainingLiters": 2.6401
+    }
+  ],
+  "activeJourney": {
+    "id": "demo-jornada-8",
+    "start": 1450.8,
+    "end": 1489.2,
+    "startedAt": "2026-11-08T08:30:00-03:00",
+    "closedAt": null,
+    "refuels": [
+      {
+        "id": "demo-carga-8",
+        "liters": 3,
+        "price": 1499,
+        "odometer": 1450.8,
+        "createdAt": "2026-11-08T09:00:00-03:00"
+      }
+    ],
+    "settings": {
+      "fuelPrice": 1499,
+      "efficiency": 30,
+      "initialLiters": 2.6401,
+      "tankCapacity": 12,
+      "taxRate": 15.25,
+      "odometer": 1450.8,
+      "goal": 25000
+    },
+    "orderDistanceAtReading": 30.4
+  },
+  "incentives": [
+    {
+      "id": "demo-incentivo-semana",
+      "target": 100,
+      "amount": 30000,
+      "startDate": "2026-11-02",
+      "endDate": "2026-11-08",
+      "taxRate": 15.25
+    },
+    {
+      "id": "demo-incentivo-fin-semana",
+      "target": 20,
+      "amount": 8000,
+      "startDate": "2026-11-07",
+      "endDate": "2026-11-08",
+      "taxRate": 15.25
+    }
+  ]
+}
