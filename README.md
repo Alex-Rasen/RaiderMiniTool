@@ -18,9 +18,10 @@ Abre la aplicación en tu navegador. Si tienes los archivos del proyecto en tu e
 
 1. Abre **Configuración**, con el icono de engranaje.
 2. Revisa el precio del combustible, rendimiento aproximado, litros iniciales, capacidad del estanque, retención y odómetro inicial predeterminado. Los cambios se guardan automáticamente.
-3. Pulsa **Agregar entrega** para registrar tu primera solicitud.
+3. Pulsa **Nueva jornada** en la cabecera, confirma los parámetros iniciales y pulsa **Iniciar jornada**.
+4. Pulsa **Agregar entrega** para registrar tu primera solicitud.
 
-La primera apertura crea una jornada con parámetros de ejemplo. Ajusta los valores a tu vehículo antes de registrar datos reales. El odómetro inicial predeterminado no cambia el inicio de una jornada que ya está creada; confirma la lectura inicial al iniciar una nueva jornada.
+La primera apertura muestra **Sin jornada iniciada** y el botón **Nueva jornada**. Los formularios proponen parámetros de ejemplo; ajusta los valores a tu vehículo antes de iniciar. El odómetro inicial predeterminado no cambia el inicio de una jornada que ya está creada; confirma la lectura inicial al iniciar una nueva jornada.
 
 Los datos se guardan en este navegador. No se sincronizan entre dispositivos y pueden perderse al borrar sus datos. Exporta un respaldo periódicamente.
 
@@ -28,15 +29,15 @@ Los datos se guardan en este navegador. No se sincronizan entre dispositivos y p
 
 [Descargar el respaldo demo](respaldo-entregas-uber.json.example) usando **Raw / Descargar archivo** en GitHub. Guárdalo o renómbralo como `respaldo-entregas-uber.json` para seleccionarlo en el importador.
 
-1. Si ya tienes registros, ve a **Configuración → Respaldo JSON** para conservar una copia.
-2. Pulsa **Importar respaldo** y selecciona el archivo demo con extensión `.json`.
+1. Si ya tienes registros, ve a **Configuración → JSON con icono de respaldo** para conservar una copia.
+2. Pulsa **JSON con icono de restauración** y selecciona el archivo demo con extensión `.json`.
 3. Comprueba el mensaje **Respaldo importado** y cierra la configuración.
 
 **Importar reemplaza los datos actuales; no los combina.** El respaldo contiene exclusivamente datos ficticios:
 
 - 60 solicitudes y 77 entregas distribuidas de lunes a domingo.
 - Seis jornadas finalizadas y la del domingo abierta.
-- Cargas de combustible, propinas, recorridos fuera de pedido y dos incentivos: uno completado y otro al 77 % en la fecha de demostración.
+- Cargas de combustible, propinas, recorridos fuera de pedido y dos incentivos superpuestos: el más antiguo al 77 % y el siguiente en espera en la fecha de demostración.
 
 | Día | Lunes | Martes | Miércoles | Jueves | Viernes | Sábado | Domingo |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -52,7 +53,7 @@ El gráfico y las ganancias semanales usan **la semana actual del dispositivo**,
 
 Una solicitud puede incluir varias entregas. La cantidad **no multiplica** la tarifa ni la distancia: introduce los totales de la solicitud.
 
-En **Entregas**, usa el lápiz para editar y la cruz para eliminar, previa confirmación. En móvil también puedes duplicar una solicitud con el icono de copia; la copia queda registrada con la fecha y hora actuales. Editar una solicitud conserva su fecha original.
+En **Entregas**, usa el lápiz para editar y la cruz para eliminar, previa confirmación. Cuando una entrega no tiene propina, pulsa el icono de moneda con **+** para abrir su edición directamente en el campo de propina y guarda el importe. En móvil también puedes duplicar una solicitud con el icono de copia; la copia queda registrada con la fecha y hora actuales. Editar una solicitud conserva su fecha original.
 
 ## Jornadas y odómetro
 
@@ -80,7 +81,7 @@ La aplicación calcula el combustible; no lee un sensor del vehículo. Actualiza
 2. Indica la meta de entregas, monto y fechas de inicio y término.
 3. Pulsa **Guardar incentivo**.
 
-Se cuentan las entregas de todas las jornadas dentro de las fechas, inclusive, según la hora local. Al completar la meta, el incentivo se incorpora a la jornada de la entrega que la completó, descontando la retención configurada al crear el incentivo. La barra muestra su avance de rojo a amarillo y verde.
+Se cuentan las entregas de todas las jornadas dentro de las fechas, inclusive, según la hora local. Solo progresa el incentivo vigente y pendiente con fecha de inicio más antigua; si coinciden, tiene prioridad el primero añadido. Los demás quedan **En espera**. Al completar o vencer el anterior, el siguiente vigente puede avanzar con las solicitudes siguientes. Cada solicitud, con todas sus entregas, cuenta para un solo incentivo; no se reparte el excedente ni se reutilizan entregas. La regla se recalcula también al importar respaldos o editar/eliminar entregas, por lo que pueden cambiar los premios obtenidos. Al completar la meta, el incentivo se incorpora a la jornada de la entrega que la completó, descontando la retención configurada al crear el incentivo. La barra muestra su avance de rojo a amarillo y verde.
 
 ## Interpretar los indicadores
 
@@ -94,18 +95,20 @@ Se cuentan las entregas de todas las jornadas dentro de las fechas, inclusive, s
 | Kilómetros jornada | Lectura del odómetro y distancias registradas; distingue pedidos y recorridos fuera de pedido. |
 | Consumo real | Relación calculada entre kilómetros y litros estimados; requiere una lectura de odómetro. No es una medición directa del estanque. |
 
-Las propinas no reciben retención en los cálculos de la aplicación. La ganancia objetivo se establece al crear una nueva jornada.
+Las propinas no reciben retención en los cálculos de la aplicación. La ganancia objetivo se establece al crear una nueva jornada. Durante una jornada abierta puedes cambiarla con el botón de lápiz en **Ganancia acumulada**: introduce un monto en CLP, mayor o igual a cero, y pulsa **Guardar objetivo**. El cambio se guarda y actualiza la barra; **Cancelar** conserva el objetivo anterior.
 
 En móvil, **Resumen** vuelve al inicio. Después de los indicadores aparecen incentivos, combustible, entregas e historial. En escritorio, la columna de información semanal y la de operaciones tienen desplazamiento independiente.
 
 ## Guardar y recuperar tus datos
 
-En **Configuración**:
+En **Configuración**, los cinco botones aparecen en una fila. Sus etiquetas al pasar el cursor o mediante lector de pantalla distinguen cada acción:
 
-- **Respaldo JSON:** exporta parámetros, jornadas, entregas, incentivos y cargas para recuperarlos posteriormente.
-- **Importar respaldo:** restaura un JSON exportado y reemplaza los datos actuales.
-- **Exportar CSV:** descarga las entregas para consultarlas en una hoja de cálculo; no sustituye al respaldo completo.
-- **Restablecer datos:** elimina los registros y restaura los parámetros iniciales tras pedir confirmación.
+- **JSON con icono de respaldo (Guardar respaldo JSON):** exporta parámetros, jornadas, entregas, incentivos y cargas para recuperarlos posteriormente.
+- **JSON con icono de restauración (Restaurar respaldo JSON):** restaura un JSON exportado y reemplaza los datos actuales.
+- **CSV con icono de descarga:** descarga las entregas para consultarlas en una hoja de cálculo; no sustituye al respaldo completo.
+- **Icono de restablecimiento (Restablecer todos los datos):** elimina los registros y restaura los parámetros iniciales tras pedir confirmación. Queda sin jornada activa y muestra **Nueva jornada**, incluso después de recargar.
+
+El botón **×** cierra la configuración. El selector de archivos solo se abre al pulsar el botón de restauración.
 
 Para llevar los datos a otro navegador o dispositivo, exporta el JSON e impórtalo allí.
 
